@@ -1,0 +1,360 @@
+% $Header: /cvsroot/latex-beamer/latex-beamer/examples/beamerexample5.tex,v 1.22 2004/10/08 14:02:33 tantau Exp $
+
+\documentclass[11pt]{beamer}
+
+\usetheme{Darmstadt}
+
+\usepackage{times}
+\usefonttheme{structurebold}
+
+%\usepackage[english]{babel}
+\usepackage[portuges]{babel}
+\usepackage{pgf,pgfarrows,pgfnodes,pgfautomata,pgfheaps}
+\usepackage{amsmath,amssymb}
+%\usepackage[latin8]{inputenc}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+
+\setbeamercovered{dynamic}
+
+\newcommand{\Lang}[1]{\operatorname{\text{\textsc{#1}}}}
+
+\newcommand{\Class}[1]{\operatorname{\mathchoice
+  {\text{\sf \small #1}}
+  {\text{\sf \small #1}}
+  {\text{\sf #1}}
+  {\text{\sf #1}}}}
+
+\newcommand{\NumSAT}      {\text{\small\#SAT}}
+\newcommand{\NumA}        {\#_{\!A}}
+
+\newcommand{\barA}        {\,\bar{\!A}}
+
+\newcommand{\Nat}{\mathbb{N}}
+\newcommand{\Set}[1]{\{#1\}}
+
+\pgfdeclaremask{tu}{beamer-tu-logo-mask}
+\pgfdeclaremask{computer}{beamer-computer-mask}
+\pgfdeclareimage[interpolate=true,mask=computer,height=2cm]{computerimage}{beamer-computer}
+\pgfdeclareimage[interpolate=true,mask=computer,height=2cm]{computerworkingimage}{beamer-computerred}
+\pgfdeclareimage[mask=tu,height=.5cm]{logo}{logounesp}
+
+\logo{\pgfuseimage{logo}}
+
+\title{Mecânica Quântica Antiga}
+\author{Ney Lemke}
+\institute[IBB-UNESP]{%
+    Mec\^anica Qu\^antica }
+%%%%%    Departamento de F\~AÂÃÂ\~AÂÃÂ­sica e Biof\~AÂÃÂ\~AÂÃÂ­sica}
+\date{2011}                                
+
+\colorlet{redshaded}{red!25!bg}
+\colorlet{shaded}{black!25!bg}
+\colorlet{shadedshaded}{black!10!bg}
+\colorlet{blackshaded}{black!40!bg}
+
+\colorlet{darkred}{red!80!black}
+\colorlet{darkblue}{blue!80!black}
+\colorlet{darkgreen}{green!80!black}
+
+\def\radius{0.96cm}
+\def\innerradius{0.85cm}
+
+\def\softness{0.4}
+\definecolor{softred}{rgb}{1,\softness,\softness}
+\definecolor{softgreen}{rgb}{\softness,1,\softness}
+\definecolor{softblue}{rgb}{\softness,\softness,1}
+
+\definecolor{softrg}{rgb}{1,1,\softness}
+\definecolor{softrb}{rgb}{1,\softness,1}
+\definecolor{softgb}{rgb}{\softness,1,1}
+
+\newcommand{\Bandshaded}[2]{
+  \color{shadedshaded}
+  \pgfmoveto{\pgfxy(-0.5,0)}
+  \pgflineto{\pgfxy(-0.6,0.1)}
+  \pgflineto{\pgfxy(-0.4,0.2)}
+  \pgflineto{\pgfxy(-0.6,0.3)}
+  \pgflineto{\pgfxy(-0.4,0.4)}
+  \pgflineto{\pgfxy(-0.5,0.5)}
+  \pgflineto{\pgfxy(4,0.5)}
+  \pgflineto{\pgfxy(4.1,0.4)}
+  \pgflineto{\pgfxy(3.9,0.3)}
+  \pgflineto{\pgfxy(4.1,0.2)}
+  \pgflineto{\pgfxy(3.9,0.1)}
+  \pgflineto{\pgfxy(4,0)}
+  \pgfclosepath
+  \pgffill
+
+  \color{black}  
+  \pgfputat{\pgfxy(0,0.7)}{\pgfbox[left,base]{#1}}
+  \pgfputat{\pgfxy(0,-0.1)}{\pgfbox[left,top]{#2}}
+}
+
+\newcommand{\Band}[2]{
+  \color{shaded}
+  \pgfmoveto{\pgfxy(-0.5,0)}
+  \pgflineto{\pgfxy(-0.6,0.1)}
+  \pgflineto{\pgfxy(-0.4,0.2)}
+  \pgflineto{\pgfxy(-0.6,0.3)}
+  \pgflineto{\pgfxy(-0.4,0.4)}
+  \pgflineto{\pgfxy(-0.5,0.5)}
+  \pgflineto{\pgfxy(4,0.5)}
+  \pgflineto{\pgfxy(4.1,0.4)}
+  \pgflineto{\pgfxy(3.9,0.3)}
+  \pgflineto{\pgfxy(4.1,0.2)}
+  \pgflineto{\pgfxy(3.9,0.1)}
+  \pgflineto{\pgfxy(4,0)}
+  \pgfclosepath
+  \pgffill
+
+  \color{black}  
+  \pgfputat{\pgfxy(0,0.7)}{\pgfbox[left,base]{#1}}
+  \pgfputat{\pgfxy(0,-0.1)}{\pgfbox[left,top]{#2}}
+}
+
+\newcommand{\BaenderNormal}
+{%
+  \pgfsetlinewidth{0.4pt}
+  \color{black}
+  \pgfputat{\pgfxy(0,5)}{\Band{input tapes}{}}
+  \pgfputat{\pgfxy(0.35,4.6)}{\pgfbox[center,base]{$\vdots$}}
+  \pgfputat{\pgfxy(0,4)}{\Band{}{}}
+
+  \pgfxyline(0,5)(0,5.5)
+  \pgfxyline(1.2,5)(1.2,5.5)
+  \pgfputat{\pgfxy(0.25,5.25)}{\pgfbox[left,center]{$w_1$}}
+
+  \pgfxyline(0,4)(0,4.5)
+  \pgfxyline(1.8,4)(1.8,4.5)        
+  \pgfputat{\pgfxy(0.25,4.25)}{\pgfbox[left,center]{$w_n$}}
+  \ignorespaces}
+
+\newcommand{\BaenderZweiNormal}
+{%
+  \pgfsetlinewidth{0.4pt}
+  \color{black}
+  \pgfputat{\pgfxy(0,5)}{\Band{Zwei Eingabeb\~AÂÃÂ\~AÂÃÂ¤nder}{}}
+  \pgfputat{\pgfxy(0,4.25)}{\Band{}{}}
+
+  \pgfxyline(0,5)(0,5.5)
+  \pgfxyline(1.2,5)(1.2,5.5)
+  \pgfputat{\pgfxy(0.25,5.25)}{\pgfbox[left,center]{$u$}}
+
+  \pgfxyline(0,4.25)(0,4.75)
+  \pgfxyline(1.8,4.25)(1.8,4.75)        
+  \pgfputat{\pgfxy(0.25,4.5)}{\pgfbox[left,center]{$v$}}
+  \ignorespaces}
+
+\newcommand{\BaenderHell}
+{%
+  \pgfsetlinewidth{0.4pt}
+  \color{black}
+  \pgfputat{\pgfxy(0,5)}{\Bandshaded{input tapes}{}}
+  \color{shaded}
+  \pgfputat{\pgfxy(0.35,4.6)}{\pgfbox[center,base]{$\vdots$}}
+  \pgfputat{\pgfxy(0,4)}{\Bandshaded{}{}}
+
+  \color{blackshaded}
+  \pgfxyline(0,5)(0,5.5)
+  \pgfxyline(1.2,5)(1.2,5.5)
+  \pgfputat{\pgfxy(0.25,5.25)}{\pgfbox[left,center]{$w_1$}}
+
+  \pgfxyline(0,4)(0,4.5)
+  \pgfxyline(1.8,4)(1.8,4.5)        
+  \pgfputat{\pgfxy(0.25,4.25)}{\pgfbox[left,center]{$w_n$}}
+  \ignorespaces}
+
+\newcommand{\BaenderZweiHell}
+{%
+  \pgfsetlinewidth{0.4pt}
+  \color{black}
+  \pgfputat{\pgfxy(0,5)}{\Bandshaded{Zwei Eingabeb\~AÂÃÂ\~AÂÃÂ¤nder}{}}%
+  \color{blackshaded}
+  \pgfputat{\pgfxy(0,4.25)}{\Bandshaded{}{}}
+  \pgfputat{\pgfxy(0.25,4.5)}{\pgfbox[left,center]{$v$}}
+  \pgfputat{\pgfxy(0.25,5.25)}{\pgfbox[left,center]{$u$}}%
+
+  \pgfxyline(0,5)(0,5.5)
+  \pgfxyline(1.2,5)(1.2,5.5)
+
+  \pgfxyline(0,4.25)(0,4.75)
+  \pgfxyline(1.8,4.25)(1.8,4.75)        
+  \ignorespaces}
+
+\newcommand{\Slot}[1]{%
+  \begin{pgftranslate}{\pgfpoint{#1}{0pt}}%
+    \pgfsetlinewidth{0.6pt}%
+    \color{structure}%
+    \pgfmoveto{\pgfxy(-0.1,5.5)}%
+    \pgfbezier{\pgfxy(-0.1,5.55)}{\pgfxy(-0.05,5.6)}{\pgfxy(0,5.6)}%
+    \pgfbezier{\pgfxy(0.05,5.6)}{\pgfxy(0.1,5.55)}{\pgfxy(0.1,5.5)}%
+    \pgflineto{\pgfxy(0.1,4.0)}%
+    \pgfbezier{\pgfxy(0.1,3.95)}{\pgfxy(0.05,3.9)}{\pgfxy(0,3.9)}%
+    \pgfbezier{\pgfxy(-0.05,3.9)}{\pgfxy(-0.1,3.95)}{\pgfxy(-0.1,4.0)}%
+    \pgfclosepath%
+    \pgfstroke%
+  \end{pgftranslate}\ignorespaces}
+
+\newcommand{\SlotZwei}[1]{%
+  \begin{pgftranslate}{\pgfpoint{#1}{0pt}}%
+    \pgfsetlinewidth{0.6pt}%
+    \color{structure}%
+    \pgfmoveto{\pgfxy(-0.1,5.5)}%
+    \pgfbezier{\pgfxy(-0.1,5.55)}{\pgfxy(-0.05,5.6)}{\pgfxy(0,5.6)}%
+    \pgfbezier{\pgfxy(0.05,5.6)}{\pgfxy(0.1,5.55)}{\pgfxy(0.1,5.5)}%
+    \pgflineto{\pgfxy(0.1,4.25)}%
+    \pgfbezier{\pgfxy(0.1,4.25)}{\pgfxy(0.05,4.15)}{\pgfxy(0,4.15)}%
+    \pgfbezier{\pgfxy(-0.05,4.15)}{\pgfxy(-0.1,4.2)}{\pgfxy(-0.1,4.25)}%
+    \pgfclosepath%
+    \pgfstroke%
+  \end{pgftranslate}\ignorespaces}
+
+\newcommand{\ClipSlot}[1]{%
+  \pgfrect[clip]{\pgfrelative{\pgfxy(-0.1,0)}{\pgfpoint{#1}{4cm}}}{\pgfxy(0.2,1.5)}\ignorespaces}
+
+\newcommand{\ClipSlotZwei}[1]{%
+  \pgfrect[clip]{\pgfrelative{\pgfxy(-0.1,0)}{\pgfpoint{#1}{4.25cm}}}{\pgfxy(0.2,1.25)}\ignorespaces}
+
+
+\AtBeginSection[]{\frame{\frametitle{Outline}\tableofcontents[current]}}
+
+\begin{document}
+
+\frame{\titlepage}
+
+%\section*{Outline}
+
+\frame{\frametitle{Outline}\tableofcontents} 
+
+\section{Fundadores}
+\frame{\frametitle{Mecânica Quântica Antiga}
+  \begin{itemize}
+  \item Inicia com Planck
+  \item Einstein
+  \item De Broglie
+  \item Culmina com o modelo de Bohr e Sommerfedld
+  \end{itemize}
+}
+
+\section{Modelo de Bohr}
+
+\frame{\frametitle{Modelo de Bohr}
+O modelo de Bohr surge como uma extensão do modelo de Rutherford para os átomos.
+
+O modelo pode ser pensado basicamente como um sistema planetário. 
+Onde os elétrons são os planetas e o núcleo é o sol. 
+
+A analogia falha contudo em um aspecto fundamental, cargas clássicas 
+em movimento emitem radiação.
+}
+
+\frame{\frametitle{Fórmula de Larmor}
+
+Uma carga acelerada emite uma potência:
+$$
+P=\frac{2}{3}\frac{q^2a^2}{c^3}
+$$
+
+Observe que esta equação implica que um eletron ao girar em torno 
+do núcleo iria emitir radiação até se chocar com o mesmo. 
+
+}
+
+\frame{\frametitle{Hipóteses de Bohr}
+
+  \begin{enumerate}
+  \item Os elétrons só podem ocupar um conjunto discreto de 
+órbitas em torno do núcleo.
+\item Os elétrons só podem absorver quantas de energia dados por
+$\Delta E=E_2-E_!=h\nu$
+\item Os possíveis valores do momento angular são dados por:
+
+$$L=n\frac{h}{2 \pi}=n\hbar \quad=1,2,\ldots $$
+
+$$\hbar=1,05457148 \times 10^{-34} m^2 kg \/ s$$
+\end{enumerate}
+}
+
+
+\section{Átomo de Hidrogênio}
+
+\frame{\frametitle{Átomo de Hidrogênio}
+
+Vamos assumir que os életrons possuem órbitas circulares em torno 
+do núcleo. E que a força centrípeta é dada pela lei de Coulomb.
+
+$$m_e\frac{v^2}{r}=\frac{Zk_e e^2}{r^2}$$
+
+$$k_e=\frac{1}{4 \pi \epsilon_o}$$
+
+Concluímos que;
+
+$$v=\sqrt{\frac{Zk_e e^2}{m_e r}}$$
+
+Temos também que:
+}
+
+\frame{\frametitle{Átomo de Hidrogênio}
+$$E=\frac{1}{2}m_ev^2-\frac{k_e e^2}{r}=\frac{k_e Z e^2}{2r}$$
+
+Usamos agora a regra do momento angular:
+
+$$L=m_e v r=n\hbar$$
+
+$$\sqrt{Z k_e e^2m_e r}=n\hbar$$
+
+$$r_n=\frac{n^2 \hbar^2}{Zk_e e^2m_e}$$
+
+}
+\frame{\frametitle{Átomo de Hidrogênio}
+Raio de Bohr:
+
+$$r_1=\frac{\hbar^2}{Zk_e e^2m_e}=5.29\times 10^{-11}m$$
+}
+
+\frame{\frametitle{Níveis de Energia}
+
+$$E_n=-\frac{Z^2 (k_e e^2)^2m_e}{2 \hbar n^2}=-\frac{13.6 Z^2}{n^2}$$
+
+1 eletron volt = $1,60217646 \times 10^{-19} $J
+
+
+$$\alpha=\frac{k_ e e^2}{\hbar c}\sim\frac{1}{137}$$
+
+$$R_E=\frac{1}{2}(m_e c^2)\alpha^2$$
+
+$$E_n=-\frac{ZR_E}{n^2}$$
+}
+
+\frame{\frametitle{Fórmla de Rydberg}
+
+A energia dos fótons emitidos ou absorvidos deve obedecer:
+
+$$E_f-E_i=R_E\left( \frac{1}{n_f^2}-\frac{1}{n_i^2} \right)$$
+
+\begin{center}
+\includegraphics[scale=0.3]{spectra.png}
+\end{center}
+}
+
+\frame{\frametitle{Limites do Modelo}
+  \begin{enumerate}
+  \item Espectros de altos com mais elétrons.
+  \item Intensidade Relativa.
+  \item Estrutura hiperfina do espectro.
+  \item Efeito Zeeman.
+  \item Viola o princípio da incerteza
+  \end{enumerate}
+
+}
+
+\frame{\frametitle{Princípio da Correspondência}
+Os sistemas quânticos são equivalentes aos sistemas clássicos no limite
+de números quânticos grandes. 
+
+}
+
+\end{document}
+
+

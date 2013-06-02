@@ -1,0 +1,507 @@
+% $Header: /cvsroot/latex-beamer/latex-beamer/examples/beamerexample5.tex,v 1.22 2004/10/08 14:02:33 tantau Exp $
+
+\documentclass[11pt]{beamer}
+
+\usetheme{Darmstadt}
+
+\usepackage{times}
+\usefonttheme{structurebold}
+
+%\usepackage[english]{babel}
+\usepackage[portuges]{babel}
+\usepackage{pgf,pgfarrows,pgfnodes,pgfautomata,pgfheaps}
+\usepackage{amsmath,amssymb}
+%\usepackage[latin8]{inputenc}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+
+\setbeamercovered{dynamic}
+
+\newcommand{\Lang}[1]{\operatorname{\text{\textsc{#1}}}}
+
+\newcommand{\Class}[1]{\operatorname{\mathchoice
+  {\text{\sf \small #1}}
+  {\text{\sf \small #1}}
+  {\text{\sf #1}}
+  {\text{\sf #1}}}}
+
+\newcommand{\NumSAT}      {\text{\small\#SAT}}
+\newcommand{\NumA}        {\#_{\!A}}
+
+\newcommand{\barA}        {\,\bar{\!A}}
+
+\newcommand{\Nat}{\mathbb{N}}
+\newcommand{\Set}[1]{\{#1\}}
+
+\pgfdeclaremask{tu}{beamer-tu-logo-mask}
+\pgfdeclaremask{computer}{beamer-computer-mask}
+\pgfdeclareimage[interpolate=true,mask=computer,height=2cm]{computerimage}{beamer-computer}
+\pgfdeclareimage[interpolate=true,mask=computer,height=2cm]{computerworkingimage}{beamer-computerred}
+\pgfdeclareimage[mask=tu,height=.5cm]{logo}{logounesp}
+
+\logo{\pgfuseimage{logo}}
+
+\title{Representação Matricial de Operadores}
+\author{Ney Lemke}
+\institute[IBB-UNESP]{%
+    Mec\^anica Qu\^antica}
+\date{2012                                
+
+\colorlet{redshaded}{red!25!bg}
+\colorlet{shaded}{black!25!bg}
+\colorlet{shadedshaded}{black!10!bg}
+\colorlet{blackshaded}{black!40!bg}
+
+\colorlet{darkred}{red!80!black}
+\colorlet{darkblue}{blue!80!black}
+\colorlet{darkgreen}{green!80!black}
+
+\def\radius{0.96cm}
+\def\innerradius{0.85cm}
+
+\def\softness{0.4}
+\definecolor{softred}{rgb}{1,\softness,\softness}
+\definecolor{softgreen}{rgb}{\softness,1,\softness}
+\definecolor{softblue}{rgb}{\softness,\softness,1}
+
+\definecolor{softrg}{rgb}{1,1,\softness}
+\definecolor{softrb}{rgb}{1,\softness,1}
+\definecolor{softgb}{rgb}{\softness,1,1}
+
+\newcommand{\Bandshaded}[2]{
+  \color{shadedshaded}
+  \pgfmoveto{\pgfxy(-0.5,0)}
+  \pgflineto{\pgfxy(-0.6,0.1)}
+  \pgflineto{\pgfxy(-0.4,0.2)}
+  \pgflineto{\pgfxy(-0.6,0.3)}
+  \pgflineto{\pgfxy(-0.4,0.4)}
+  \pgflineto{\pgfxy(-0.5,0.5)}
+  \pgflineto{\pgfxy(4,0.5)}
+  \pgflineto{\pgfxy(4.1,0.4)}
+  \pgflineto{\pgfxy(3.9,0.3)}
+  \pgflineto{\pgfxy(4.1,0.2)}
+  \pgflineto{\pgfxy(3.9,0.1)}
+  \pgflineto{\pgfxy(4,0)}
+  \pgfclosepath
+  \pgffill
+
+  \color{black}  
+  \pgfputat{\pgfxy(0,0.7)}{\pgfbox[left,base]{#1}}
+  \pgfputat{\pgfxy(0,-0.1)}{\pgfbox[left,top]{#2}}
+}
+
+\newcommand{\Band}[2]{
+  \color{shaded}
+  \pgfmoveto{\pgfxy(-0.5,0)}
+  \pgflineto{\pgfxy(-0.6,0.1)}
+  \pgflineto{\pgfxy(-0.4,0.2)}
+  \pgflineto{\pgfxy(-0.6,0.3)}
+  \pgflineto{\pgfxy(-0.4,0.4)}
+  \pgflineto{\pgfxy(-0.5,0.5)}
+  \pgflineto{\pgfxy(4,0.5)}
+  \pgflineto{\pgfxy(4.1,0.4)}
+  \pgflineto{\pgfxy(3.9,0.3)}
+  \pgflineto{\pgfxy(4.1,0.2)}
+  \pgflineto{\pgfxy(3.9,0.1)}
+  \pgflineto{\pgfxy(4,0)}
+  \pgfclosepath
+  \pgffill
+
+  \color{black}  
+  \pgfputat{\pgfxy(0,0.7)}{\pgfbox[left,base]{#1}}
+  \pgfputat{\pgfxy(0,-0.1)}{\pgfbox[left,top]{#2}}
+}
+
+\newcommand{\BaenderNormal}
+{%
+  \pgfsetlinewidth{0.4pt}
+  \color{black}
+  \pgfputat{\pgfxy(0,5)}{\Band{input tapes}{}}
+  \pgfputat{\pgfxy(0.35,4.6)}{\pgfbox[center,base]{$\vdots$}}
+  \pgfputat{\pgfxy(0,4)}{\Band{}{}}
+
+  \pgfxyline(0,5)(0,5.5)
+  \pgfxyline(1.2,5)(1.2,5.5)
+  \pgfputat{\pgfxy(0.25,5.25)}{\pgfbox[left,center]{$w_1$}}
+
+  \pgfxyline(0,4)(0,4.5)
+  \pgfxyline(1.8,4)(1.8,4.5)        
+  \pgfputat{\pgfxy(0.25,4.25)}{\pgfbox[left,center]{$w_n$}}
+  \ignorespaces}
+
+\newcommand{\BaenderZweiNormal}
+{%
+  \pgfsetlinewidth{0.4pt}
+  \color{black}
+  \pgfputat{\pgfxy(0,5)}{\Band{Zwei Eingabeb\~AÂÃÂ\~AÂÃÂ¤nder}{}}
+  \pgfputat{\pgfxy(0,4.25)}{\Band{}{}}
+
+  \pgfxyline(0,5)(0,5.5)
+  \pgfxyline(1.2,5)(1.2,5.5)
+  \pgfputat{\pgfxy(0.25,5.25)}{\pgfbox[left,center]{$u$}}
+
+  \pgfxyline(0,4.25)(0,4.75)
+  \pgfxyline(1.8,4.25)(1.8,4.75)        
+  \pgfputat{\pgfxy(0.25,4.5)}{\pgfbox[left,center]{$v$}}
+  \ignorespaces}
+
+\newcommand{\BaenderHell}
+{%
+  \pgfsetlinewidth{0.4pt}
+  \color{black}
+  \pgfputat{\pgfxy(0,5)}{\Bandshaded{input tapes}{}}
+  \color{shaded}
+  \pgfputat{\pgfxy(0.35,4.6)}{\pgfbox[center,base]{$\vdots$}}
+  \pgfputat{\pgfxy(0,4)}{\Bandshaded{}{}}
+
+  \color{blackshaded}
+  \pgfxyline(0,5)(0,5.5)
+  \pgfxyline(1.2,5)(1.2,5.5)
+  \pgfputat{\pgfxy(0.25,5.25)}{\pgfbox[left,center]{$w_1$}}
+
+  \pgfxyline(0,4)(0,4.5)
+  \pgfxyline(1.8,4)(1.8,4.5)        
+  \pgfputat{\pgfxy(0.25,4.25)}{\pgfbox[left,center]{$w_n$}}
+  \ignorespaces}
+
+\newcommand{\BaenderZweiHell}
+{%
+  \pgfsetlinewidth{0.4pt}
+  \color{black}
+  \pgfputat{\pgfxy(0,5)}{\Bandshaded{Zwei Eingabeb\~AÂÃÂ\~AÂÃÂ¤nder}{}}%
+  \color{blackshaded}
+  \pgfputat{\pgfxy(0,4.25)}{\Bandshaded{}{}}
+  \pgfputat{\pgfxy(0.25,4.5)}{\pgfbox[left,center]{$v$}}
+  \pgfputat{\pgfxy(0.25,5.25)}{\pgfbox[left,center]{$u$}}%
+
+  \pgfxyline(0,5)(0,5.5)
+  \pgfxyline(1.2,5)(1.2,5.5)
+
+  \pgfxyline(0,4.25)(0,4.75)
+  \pgfxyline(1.8,4.25)(1.8,4.75)        
+  \ignorespaces}
+
+\newcommand{\Slot}[1]{%
+  \begin{pgftranslate}{\pgfpoint{#1}{0pt}}%
+    \pgfsetlinewidth{0.6pt}%
+    \color{structure}%
+    \pgfmoveto{\pgfxy(-0.1,5.5)}%
+    \pgfbezier{\pgfxy(-0.1,5.55)}{\pgfxy(-0.05,5.6)}{\pgfxy(0,5.6)}%
+    \pgfbezier{\pgfxy(0.05,5.6)}{\pgfxy(0.1,5.55)}{\pgfxy(0.1,5.5)}%
+    \pgflineto{\pgfxy(0.1,4.0)}%
+    \pgfbezier{\pgfxy(0.1,3.95)}{\pgfxy(0.05,3.9)}{\pgfxy(0,3.9)}%
+    \pgfbezier{\pgfxy(-0.05,3.9)}{\pgfxy(-0.1,3.95)}{\pgfxy(-0.1,4.0)}%
+    \pgfclosepath%
+    \pgfstroke%
+  \end{pgftranslate}\ignorespaces}
+
+\newcommand{\SlotZwei}[1]{%
+  \begin{pgftranslate}{\pgfpoint{#1}{0pt}}%
+    \pgfsetlinewidth{0.6pt}%
+    \color{structure}%
+    \pgfmoveto{\pgfxy(-0.1,5.5)}%
+    \pgfbezier{\pgfxy(-0.1,5.55)}{\pgfxy(-0.05,5.6)}{\pgfxy(0,5.6)}%
+    \pgfbezier{\pgfxy(0.05,5.6)}{\pgfxy(0.1,5.55)}{\pgfxy(0.1,5.5)}%
+    \pgflineto{\pgfxy(0.1,4.25)}%
+    \pgfbezier{\pgfxy(0.1,4.25)}{\pgfxy(0.05,4.15)}{\pgfxy(0,4.15)}%
+    \pgfbezier{\pgfxy(-0.05,4.15)}{\pgfxy(-0.1,4.2)}{\pgfxy(-0.1,4.25)}%
+    \pgfclosepath%
+    \pgfstroke%
+  \end{pgftranslate}\ignorespaces}
+
+\newcommand{\ClipSlot}[1]{%
+  \pgfrect[clip]{\pgfrelative{\pgfxy(-0.1,0)}{\pgfpoint{#1}{4cm}}}{\pgfxy(0.2,1.5)}\ignorespaces}
+
+\newcommand{\ClipSlotZwei}[1]{%
+  \pgfrect[clip]{\pgfrelative{\pgfxy(-0.1,0)}{\pgfpoint{#1}{4.25cm}}}{\pgfxy(0.2,1.25)}\ignorespaces}
+
+
+\AtBeginSection[]{\frame{\frametitle{Outline}\tableofcontents[current]}}
+
+\begin{document}
+\frame{\titlepage}
+\section{Matrizes em Mecânica Quântica}
+
+\frame{\frametitle{Operadores}
+
+$$L^2|lm\rangle =\hbar^2 l(l+1)|lm\rangle $$
+
+$$L_z|lm\rangle=\hbar m |lm\rangle$$
+
+$$|n \rangle =\frac{1}{\sqrt{n!}}(A^\dagger)^n|0\rangle$$
+
+$$H|n\rangle=\hbar\omega \left( n+\frac{1}{2}\right)|n\rangle$$
+}
+
+\frame{\frametitle{Operadores}
+
+$$A^\dagger| n\rangle =\sqrt{n+1}|n+1\rangle$$
+
+$$A|n\rangle =\sqrt{n} |n-1\rangle$$
+
+$$\langle m | n\rangle =\delta_{mn}$$
+
+$$I=\sum_{n=0}^\infty |n\rangle\langle n| $$
+
+}
+
+\frame{\frametitle{Sanduíches}
+
+$$\langle m | H| n\rangle =\hbar\omega\left( n+\frac{1}{2} \right)\delta_{nm}$$
+
+$$\langle m |A^\dagger |n\rangle =\sqrt{n+1}\delta_{m,n+1} $$
+
+$$\langle m |A |n\rangle =\sqrt{n}\delta_{m,n-1} $$
+
+}
+
+\frame{\frametitle{Representação Matricial-$P$}
+
+
+$$
+P= \left(
+\begin{array}{ccc}
+\langle 1 | P | 1 \rangle & \langle 1 | P | 2 \rangle & \cdots \\
+\langle 2 | P | 1 \rangle & \langle 2 | P | 2 \rangle & \cdots \\
+\vdots & \vdots & \vdots  \\
+ \cdots  &  \langle m | P | n\rangle & \cdots \\
+\vdots & \vdots & \ddots
+\end{array}
+\right) 
+$$
+
+
+}
+
+\frame{\frametitle{Hamiltoniano}
+
+$$
+H=\hbar\omega \left(
+\begin{array}{ccccc}
+1/2 & 0 & 0 & 0 & \cdots \\
+0  & 3/2 & 0 & 0 & \cdots \\
+0  & 0 & 5/2 & 0 & \cdots \\
+0  & 0 & 0 & 7/2 & \cdots \\
+\vdots & \vdots & \vdots & \vdots & \ddots 
+\end{array}
+\right) 
+$$
+}
+
+
+\frame{\frametitle{$A^\dagger$}
+$$
+A^\dagger=\left(
+\begin{array}{ccccc}
+0 & 0 & 0 & 0 & \cdots \\
+\sqrt{1}  & 0 & 0 & 0 & \cdots \\
+0  & \sqrt{2} & 0 & 0 & \cdots \\
+0  & 0 & \sqrt{3} & 0 & \cdots \\
+\vdots & \vdots & \vdots & \vdots & \ddots 
+\end{array}
+\right) 
+$$
+}
+
+\frame{\frametitle{$A$}
+$$
+A=\left(
+\begin{array}{ccccc}
+0 & \sqrt{1} & 0 & 0 & \cdots \\
+0  & 0 & \sqrt{2} & 0 & \cdots \\
+0  & 0 & 0 & \sqrt{3}  & \cdots \\
+0  & 0 & 0 & 0 & \cdots \\
+\vdots & \vdots & \vdots & \vdots & \ddots 
+\end{array}
+\right) 
+$$
+}
+
+
+\frame{\frametitle{$L_z$}
+
+$$\langle l^\prime m^\prime |L_z| lm\rangle=
+m\hbar\langle l^\prime m^\prime | lm\rangle 
+=\hbar m \delta_{mm^\prime}\delta_{ll^\prime}$$
+
+
+$$
+L_z=\hbar \left(
+\begin{array}{ccc}
+1  & 0 & 0 \\
+0  & 0 & 0 \\
+0  & 0 & -1 
+\end{array}
+\right) 
+$$
+}
+
+\frame{\frametitle{$L_\pm$}
+
+$$\langle l^\prime m^\prime |L_\pm| lm\rangle=
+\hbar\sqrt{l(l+1)-m(m\pm 1)}\langle l^\prime m^\prime | lm\pm 1\rangle$$
+
+$$=\hbar\sqrt{l(l+1)-m(m\pm 1)} \delta_{ll^\prime}\delta_{mm^\prime
+  \pm 1}$$
+
+
+$$
+L_+=\hbar \left(
+\begin{array}{ccc}
+0  & \sqrt{2} & 0 \\
+0  & 0 & \sqrt{2} \\
+0  & 0 & 0 
+\end{array}
+\right) 
+$$
+}
+
+
+\frame{\frametitle{$L_\pm$}
+$$
+L_-=\hbar \left(
+\begin{array}{ccc}
+0  & 0  & 0 \\
+\sqrt{2}  & 0 & 0 \\
+0  & \sqrt{2} & 0 
+\end{array}
+\right) 
+$$
+
+}
+\frame{\frametitle{$L_x$}
+$$
+L_x=\frac{L_++L_-}{2}=\frac{\hbar}{\sqrt{2}} 
+\left(
+\begin{array}{ccc}
+0  & 1 & 0 \\
+1  & 0 & 1 \\
+0  & 1 & 0 
+\end{array}
+\right) 
+$$
+}
+
+\frame{\frametitle{$L_y$}
+$$L_y=\frac{-i(L_+-L_-)}{2}=\frac{\hbar}{\sqrt{2}} 
+\left(
+\begin{array}{ccc}
+0  & -i & 0 \\
+i  & 0 & -i \\
+0  & i  & 0 
+\end{array}
+\right) 
+$$
+}
+
+\frame{\frametitle{Exemplo}
+Calcule usando matrizes $[L_x,L_y]=i\hbar L_z$
+
+
+}
+
+\frame{\frametitle{Bras e Kets}
+
+Em uma base $|n\rangle$ podemos expressar um ket $|\psi\rangle$
+
+$$
+\langle n |\psi\rangle\rightarrow \left(
+\begin{array}{c}
+\langle 1 | \psi \rangle \\
+\langle 2 | \psi \rangle \\
+\langle 3 | \psi \rangle \\
+\vdots
+\end{array}
+\right)
+\rightarrow \left(
+\begin{array}{c}
+\alpha_1  \\
+\alpha_2 \\
+\alpha_3 \\
+\vdots
+\end{array}
+\right)
+$$
+}
+
+\frame{\frametitle{Bras e Kets}
+
+De forma análoga:
+
+$$
+\langle n|\phi\rangle\rightarrow \left(
+\begin{array}{c}
+\langle 1 | \phi \rangle \\
+\langle 2 | \phi \rangle \\
+\langle 3 | \phi \rangle \\
+\vdots
+\end{array}
+\right)
+\rightarrow \left(
+\begin{array}{c}
+\beta_1  \\
+\beta_2 \\
+\beta_3 \\
+\vdots
+\end{array}
+\right)
+$$
+}
+
+
+\frame{\frametitle{Bras e Kets}
+$$\langle \psi |n\rangle \rightarrow (\alpha_1^*,\alpha_2^*,\cdots )$$
+
+$$\langle \psi | \phi \rangle =
+\sum_n \langle \psi | n\rangle \langle n | \phi \rangle=
+(\alpha_1^*,\alpha_2^*,\cdots )
+ \left(
+\begin{array}{c}
+\beta_1  \\
+\beta_2 \\
+\beta_3 \\
+\vdots
+\end{array}
+\right)=\sum_n\beta_n\alpha_n^*
+$$
+
+}
+
+\frame{\frametitle{Sanduíches}
+
+$$\langle \phi | Q| \psi \rangle =
+\sum_n \langle \psi | n\rangle \langle n | \phi \rangle=
+(\alpha_1^*,\alpha_2^*,\cdots )
+ \left(
+\begin{array}{ccc}
+Q_{11} & Q_{12}  & \cdots \\
+Q_{21} & Q_{22} & \cdots \\
+\vdots & \vdots & \vdots  \\
+\vdots & \vdots & \ddots
+\end{array}
+\right)
+ \left(
+\begin{array}{c}
+\beta_1  \\
+\beta_2 \\
+\beta_3 \\
+\vdots
+\end{array}
+\right)$$
+
+$$=\sum_{nm}\alpha_n^* Q_{nm}\beta_m^*$$
+}
+
+\frame{\frametitle{Exercícios}
+
+Obtenha a representação matricial dos seguintes operadores:
+
+\begin{itemize}
+\item $x$
+\item $x^2$
+\item $p$
+\item $px$
+\item $xp$
+\end{itemize}
+}
+\end{document}

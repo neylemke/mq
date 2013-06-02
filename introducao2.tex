@@ -1,0 +1,421 @@
+% $Header: /cvsroot/latex-beamer/latex-beamer/examples/beamerexample5.tex,v 1.22 2004/10/08 14:02:33 tantau Exp $
+
+\documentclass[11pt]{beamer}
+
+\usetheme{Darmstadt}
+
+\usepackage{times}
+\usefonttheme{structurebold}
+
+%\usepackage[english]{babel}
+\usepackage[portuges]{babel}
+\usepackage{pgf,pgfarrows,pgfnodes,pgfautomata,pgfheaps}
+\usepackage{amsmath,amssymb}
+\usepackage[latin1]{inputenc}
+\usepackage{graphicx}
+
+\setbeamercovered{dynamic}
+
+\newcommand{\Lang}[1]{\operatorname{\text{\textsc{#1}}}}
+
+\newcommand{\Class}[1]{\operatorname{\mathchoice
+  {\text{\sf \small #1}}
+  {\text{\sf \small #1}}
+  {\text{\sf #1}}
+  {\text{\sf #1}}}}
+
+\newcommand{\NumSAT}      {\text{\small\#SAT}}
+\newcommand{\NumA}        {\#_{\!A}}
+
+\newcommand{\barA}        {\,\bar{\!A}}
+
+\newcommand{\Nat}{\mathbb{N}}
+\newcommand{\Set}[1]{\{#1\}}
+
+\pgfdeclaremask{tu}{beamer-tu-logo-mask}
+\pgfdeclaremask{computer}{beamer-computer-mask}
+\pgfdeclareimage[interpolate=true,mask=computer,height=2cm]{computerimage}{beamer-computer}
+\pgfdeclareimage[interpolate=true,mask=computer,height=2cm]{computerworkingimage}{beamer-computerred}
+\pgfdeclareimage[mask=tu,height=.5cm]{logo}{logounesp}
+
+\logo{\pgfuseimage{logo}}
+
+\title{Introduç±ao}
+\author{Ney Lemke}
+\institute[IBB-UNESP]{%
+    Mecânica Quântica \\
+    Departamento de Física e Biofísica}
+\date{ 2008}                                
+
+\colorlet{redshaded}{red!25!bg}
+\colorlet{shaded}{black!25!bg}
+\colorlet{shadedshaded}{black!10!bg}
+\colorlet{blackshaded}{black!40!bg}
+
+\colorlet{darkred}{red!80!black}
+\colorlet{darkblue}{blue!80!black}
+\colorlet{darkgreen}{green!80!black}
+
+\def\radius{0.96cm}
+\def\innerradius{0.85cm}
+
+\def\softness{0.4}
+\definecolor{softred}{rgb}{1,\softness,\softness}
+\definecolor{softgreen}{rgb}{\softness,1,\softness}
+\definecolor{softblue}{rgb}{\softness,\softness,1}
+
+\definecolor{softrg}{rgb}{1,1,\softness}
+\definecolor{softrb}{rgb}{1,\softness,1}
+\definecolor{softgb}{rgb}{\softness,1,1}
+
+\newcommand{\Bandshaded}[2]{
+  \color{shadedshaded}
+  \pgfmoveto{\pgfxy(-0.5,0)}
+  \pgflineto{\pgfxy(-0.6,0.1)}
+  \pgflineto{\pgfxy(-0.4,0.2)}
+  \pgflineto{\pgfxy(-0.6,0.3)}
+  \pgflineto{\pgfxy(-0.4,0.4)}
+  \pgflineto{\pgfxy(-0.5,0.5)}
+  \pgflineto{\pgfxy(4,0.5)}
+  \pgflineto{\pgfxy(4.1,0.4)}
+  \pgflineto{\pgfxy(3.9,0.3)}
+  \pgflineto{\pgfxy(4.1,0.2)}
+  \pgflineto{\pgfxy(3.9,0.1)}
+  \pgflineto{\pgfxy(4,0)}
+  \pgfclosepath
+  \pgffill
+
+  \color{black}  
+  \pgfputat{\pgfxy(0,0.7)}{\pgfbox[left,base]{#1}}
+  \pgfputat{\pgfxy(0,-0.1)}{\pgfbox[left,top]{#2}}
+}
+
+\newcommand{\Band}[2]{
+  \color{shaded}
+  \pgfmoveto{\pgfxy(-0.5,0)}
+  \pgflineto{\pgfxy(-0.6,0.1)}
+  \pgflineto{\pgfxy(-0.4,0.2)}
+  \pgflineto{\pgfxy(-0.6,0.3)}
+  \pgflineto{\pgfxy(-0.4,0.4)}
+  \pgflineto{\pgfxy(-0.5,0.5)}
+  \pgflineto{\pgfxy(4,0.5)}
+  \pgflineto{\pgfxy(4.1,0.4)}
+  \pgflineto{\pgfxy(3.9,0.3)}
+  \pgflineto{\pgfxy(4.1,0.2)}
+  \pgflineto{\pgfxy(3.9,0.1)}
+  \pgflineto{\pgfxy(4,0)}
+  \pgfclosepath
+  \pgffill
+
+  \color{black}  
+  \pgfputat{\pgfxy(0,0.7)}{\pgfbox[left,base]{#1}}
+  \pgfputat{\pgfxy(0,-0.1)}{\pgfbox[left,top]{#2}}
+}
+
+\newcommand{\BaenderNormal}
+{%
+  \pgfsetlinewidth{0.4pt}
+  \color{black}
+  \pgfputat{\pgfxy(0,5)}{\Band{input tapes}{}}
+  \pgfputat{\pgfxy(0.35,4.6)}{\pgfbox[center,base]{$\vdots$}}
+  \pgfputat{\pgfxy(0,4)}{\Band{}{}}
+
+  \pgfxyline(0,5)(0,5.5)
+  \pgfxyline(1.2,5)(1.2,5.5)
+  \pgfputat{\pgfxy(0.25,5.25)}{\pgfbox[left,center]{$w_1$}}
+
+  \pgfxyline(0,4)(0,4.5)
+  \pgfxyline(1.8,4)(1.8,4.5)        
+  \pgfputat{\pgfxy(0.25,4.25)}{\pgfbox[left,center]{$w_n$}}
+  \ignorespaces}
+
+\newcommand{\BaenderZweiNormal}
+{%
+  \pgfsetlinewidth{0.4pt}
+  \color{black}
+  \pgfputat{\pgfxy(0,5)}{\Band{Zwei Eingabebänder}{}}
+  \pgfputat{\pgfxy(0,4.25)}{\Band{}{}}
+
+  \pgfxyline(0,5)(0,5.5)
+  \pgfxyline(1.2,5)(1.2,5.5)
+  \pgfputat{\pgfxy(0.25,5.25)}{\pgfbox[left,center]{$u$}}
+
+  \pgfxyline(0,4.25)(0,4.75)
+  \pgfxyline(1.8,4.25)(1.8,4.75)        
+  \pgfputat{\pgfxy(0.25,4.5)}{\pgfbox[left,center]{$v$}}
+  \ignorespaces}
+
+\newcommand{\BaenderHell}
+{%
+  \pgfsetlinewidth{0.4pt}
+  \color{black}
+  \pgfputat{\pgfxy(0,5)}{\Bandshaded{input tapes}{}}
+  \color{shaded}
+  \pgfputat{\pgfxy(0.35,4.6)}{\pgfbox[center,base]{$\vdots$}}
+  \pgfputat{\pgfxy(0,4)}{\Bandshaded{}{}}
+
+  \color{blackshaded}
+  \pgfxyline(0,5)(0,5.5)
+  \pgfxyline(1.2,5)(1.2,5.5)
+  \pgfputat{\pgfxy(0.25,5.25)}{\pgfbox[left,center]{$w_1$}}
+
+  \pgfxyline(0,4)(0,4.5)
+  \pgfxyline(1.8,4)(1.8,4.5)        
+  \pgfputat{\pgfxy(0.25,4.25)}{\pgfbox[left,center]{$w_n$}}
+  \ignorespaces}
+
+\newcommand{\BaenderZweiHell}
+{%
+  \pgfsetlinewidth{0.4pt}
+  \color{black}
+  \pgfputat{\pgfxy(0,5)}{\Bandshaded{Zwei Eingabebänder}{}}%
+  \color{blackshaded}
+  \pgfputat{\pgfxy(0,4.25)}{\Bandshaded{}{}}
+  \pgfputat{\pgfxy(0.25,4.5)}{\pgfbox[left,center]{$v$}}
+  \pgfputat{\pgfxy(0.25,5.25)}{\pgfbox[left,center]{$u$}}%
+
+  \pgfxyline(0,5)(0,5.5)
+  \pgfxyline(1.2,5)(1.2,5.5)
+
+  \pgfxyline(0,4.25)(0,4.75)
+  \pgfxyline(1.8,4.25)(1.8,4.75)        
+  \ignorespaces}
+
+\newcommand{\Slot}[1]{%
+  \begin{pgftranslate}{\pgfpoint{#1}{0pt}}%
+    \pgfsetlinewidth{0.6pt}%
+    \color{structure}%
+    \pgfmoveto{\pgfxy(-0.1,5.5)}%
+    \pgfbezier{\pgfxy(-0.1,5.55)}{\pgfxy(-0.05,5.6)}{\pgfxy(0,5.6)}%
+    \pgfbezier{\pgfxy(0.05,5.6)}{\pgfxy(0.1,5.55)}{\pgfxy(0.1,5.5)}%
+    \pgflineto{\pgfxy(0.1,4.0)}%
+    \pgfbezier{\pgfxy(0.1,3.95)}{\pgfxy(0.05,3.9)}{\pgfxy(0,3.9)}%
+    \pgfbezier{\pgfxy(-0.05,3.9)}{\pgfxy(-0.1,3.95)}{\pgfxy(-0.1,4.0)}%
+    \pgfclosepath%
+    \pgfstroke%
+  \end{pgftranslate}\ignorespaces}
+
+\newcommand{\SlotZwei}[1]{%
+  \begin{pgftranslate}{\pgfpoint{#1}{0pt}}%
+    \pgfsetlinewidth{0.6pt}%
+    \color{structure}%
+    \pgfmoveto{\pgfxy(-0.1,5.5)}%
+    \pgfbezier{\pgfxy(-0.1,5.55)}{\pgfxy(-0.05,5.6)}{\pgfxy(0,5.6)}%
+    \pgfbezier{\pgfxy(0.05,5.6)}{\pgfxy(0.1,5.55)}{\pgfxy(0.1,5.5)}%
+    \pgflineto{\pgfxy(0.1,4.25)}%
+    \pgfbezier{\pgfxy(0.1,4.25)}{\pgfxy(0.05,4.15)}{\pgfxy(0,4.15)}%
+    \pgfbezier{\pgfxy(-0.05,4.15)}{\pgfxy(-0.1,4.2)}{\pgfxy(-0.1,4.25)}%
+    \pgfclosepath%
+    \pgfstroke%
+  \end{pgftranslate}\ignorespaces}
+
+\newcommand{\ClipSlot}[1]{%
+  \pgfrect[clip]{\pgfrelative{\pgfxy(-0.1,0)}{\pgfpoint{#1}{4cm}}}{\pgfxy(0.2,1.5)}\ignorespaces}
+
+\newcommand{\ClipSlotZwei}[1]{%
+  \pgfrect[clip]{\pgfrelative{\pgfxy(-0.1,0)}{\pgfpoint{#1}{4.25cm}}}{\pgfxy(0.2,1.25)}\ignorespaces}
+
+
+\AtBeginSection[]{\frame{\frametitle{Outline}\tableofcontents[current]}}
+
+\begin{document}
+
+\frame{\titlepage}
+
+%\section*{Outline}
+
+\part{Parte I}
+\frame{\frametitle{Outline}\tableofcontents[part=1]}
+\end{document}
+% \frame{ "All
+%   things appear and disappear because of the concurrence of causes and
+%   conditions. Nothing ever exists entirely alone; everything is in
+%   relation to everything else.â
+
+%   The Buddha (Gautama Siddharta, the founder of Buddhism, 563-483
+%   B.C.)
+
+% }
+\section{Bases FilosÃ³ficas}
+
+
+\frame{\frametitle{Mundo e Observador}
+  \begin{tabular}{c c}
+    \begin{minipage}{0.45\textwidth}
+      \begin{description}
+      \item[Realismo] Existe uma realidade independente do observador,
+        que Ã© percebida de forma direta pelos sentidos do observador.
+      \item[Idealismo] NÃ£o existe uma realidade independendente do
+        observador, a realidade Ã© um produto da consciÃªncia do
+        observador.
+      \end{description}
+    \end{minipage}&
+    \begin{minipage}{0.45\textwidth}
+      \includegraphics[scale=0.5]{magrite1}
+    \end{minipage}
+  \end{tabular}
+
+
+}
+
+
+
+
+
+\Frame{\frametitle{Determinismo}
+  \begin{tabular}{c c}
+    \begin{minipage}{0.45\textwidth}
+      \begin{description}
+      \item[Determinismo] A natureza obedece a leis imutÃ¡veis e
+        universais, o futuro Ã© consequÃªncia direta do passado. Eventos
+        aleatÃ³rios sÃ£o causados pela nossa ignorÃ¢ncia.
+      \item[Probabilismo] O presente nÃ£o Ã© consequÃªncia do passado, as
+        leis da natureza apenas predizem a probabilidade de ocorrÃªncia
+        de um determinado evento.
+      \item[Intervencionismo] Existe uma ou vÃ¡rias entidades que
+        interferem diretamente na natureza. Existem mecanismos que
+        permitem aos homens interagirem com estas entidades.
+      \end{description}
+    \end{minipage}&
+    \begin{minipage}{0.45\textwidth}
+      \includegraphics[scale=0.5]{cause}
+    \end{minipage}
+  \end{tabular}
+
+
+}
+
+\frame{\frametitle{Localidade e nÃ£o localidade}
+  \begin{tabular}{c c}
+    \begin{minipage}{0.45\textwidth}
+      \begin{description}
+      \item[Realidade Local] Existem entidades independentes, que
+        interagem com outras entidades independentes de forma nÃ£o
+        instantÃ¢nea.
+      \item[NÃ£o localidade] NÃ£o existem entidades independentes, a
+        natureza Ã© formada por uma Ãºnica entidade, eventos muito
+        distantes podem interferir instantaneamente.
+      \end{description}
+    \end{minipage}&
+    \begin{minipage}{0.45\textwidth}
+      \includegraphics[scale=0.5]{naolocal}
+    \end{minipage}
+  \end{tabular}
+
+
+}
+
+
+\frame{\frametitle{Teorema de Bell} Ele garante condiÃ§Ãµes bastante
+  gerais que teoria fÃ­sicas: realistas e locais, devem obedecer.  Os
+  sistemas fÃ­sicos em diversas situaÃ§Ãµes violam estas condiÃ§Ãµes, ou
+  seja a natureza nÃ£o pode ser descrita por uma teoria siultaneamente:
+  \begin{itemize}
+  \item local e
+  \item realista.
+  \end{itemize}
+
+  A MQ nÃ£o obedece estas condiÃ§Ãµes e descreve os resultados
+  experimentais.  Mas podem existir outras teorias mais gerais que ela
+  e que possam explicar os mesmos resultados experimentais.
+
+}
+
+\frame{\frametitle{Resultados Recentes}
+  \begin{itemize}
+  \item Existem evidÃªncias experimentais que os estados quÃ¢nticos
+    possuam existÃªncia independente do observador.
+  \item O que nos deixaria apenas com a possibilidade que a natureza
+    seja nÃ£o local.
+  \end{itemize}
+}
+
+\frame{\frametitle{VisÃ£o de Einstein-Galileo}
+  \begin{tabular}{c c}
+    \begin{minipage}{0.45\textwidth}
+      A natureza Ã© descrita por leis relativamente simples que podem
+      ser compreendidas de forma intuitiva, ou pelo menos que possam
+      ser apreendidas pelo intelecto humano. A MQ Ã© uma teoria
+      provisÃ³ria, que poderÃ¡ ser abandonada quando uma teoria completa
+      for descoberta.
+    \end{minipage}&
+    \begin{minipage}{0.45\textwidth}
+      \includegraphics[scale=0.5]{einstein}
+    \end{minipage}
+  \end{tabular}
+}
+
+
+\frame{\frametitle{Pragmatismo} 
+ \begin{tabular}{c c}
+    \begin{minipage}{0.45\textwidth}
+  Todas as teorias sÃ£o provisÃ³rias,
+  descrevem de forma imperfeita a natureza, eventualmenete estas
+  teorias nÃ£o sÃ£o intuitivas, mas podemos manipulÃ¡-las de maneira
+  formal e realizar prediÃ§Ãµes. Nem todos os elemementos de uma teoria
+  possuem contrapartida na natureza, mesmo nos casos em que esta
+  descreve adequadamente os experimentos. 
+    \end{minipage}&
+    \begin{minipage}{0.45\textwidth}
+      \includegraphics[scale=0.5]{magritecondhumana1933}
+    \end{minipage}
+  \end{tabular}
+
+ }
+
+\frame{\frametitle{Pragmatismo Dawkins} O nosso cÃ©rebro foi moldado
+  pela evoluÃ§Ã£o e estÃ¡ adaptado para viver no mundo em nossa escala de
+  tempo e espaÃ§o, em escalas diferentes dessas esse aparato funciona
+  de forma precÃ¡ria e deve ser substituÃ­do pelo formalismo matemÃ¡tico.
+}
+
+\frame{\frametitle{MecÃ¢nica QuÃ¢ntica - Conpenhagen}
+  \begin{itemize}
+  \item Formalimo matemÃ¡tico que permite realizar prediÃ§Ãµes de
+    resultados experimentais.
+  \item Principal ingrediente $\Psi$: funÃ§Ã£o de onda nÃ£o pode ser
+    medida ou percebida de forma direta.
+  \item NÃ£o determinÃ­stica e nÃ£o local.
+  \item Processo de medida interfere com objeto experimental.
+  \end{itemize}
+}
+
+\frame{\frametitle{ObservaÃ§Ãµes}
+ \begin{tabular}{c c}
+    \begin{minipage}{0.45\textwidth}
+  \begin{itemize}
+  \item O fato de que o processo de medida interfere com o objeto nÃ£o
+    implica que o observador ``controle'' este objeto.
+  \item objetos com energias altas o suficiente podem ser descritos
+    com boa aproximaÃ§Ã£o pela mecÃ¢nica clÃ¡ssica
+  \item existem vÃ¡rios efeitos quÃ¢nticos relacionados a estrutura da
+    matÃ©ria.
+  \end{itemize}
+    \end{minipage}&
+    \begin{minipage}{0.45\textwidth}
+      \includegraphics[scale=0.5, angle=90]{ParticleTracks}
+    \end{minipage}
+  \end{tabular}
+}
+
+\frame{\frametitle{MQ \& Sociedade}
+  \begin{itemize}
+  \item Transistores
+  \item Criptografia QuÃ¢ntica
+  \item Luz Laser
+  \item $\ldots$
+  \end{itemize}
+}
+
+\frame{\frametitle{MQ \& Sociedade}
+  \begin{itemize}
+  \item Homeopatia?
+  \item AdministraÃ§Ã£o de Empresas?
+  \item Cura QuÃ¢ntica?
+  \item Telepatia?
+  \item Universos Paralelos?
+  \item Ovnis?
+  \end{itemize}
+}
+
+\end{document}

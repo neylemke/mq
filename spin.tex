@@ -1,0 +1,705 @@
+% $Header: /cvsroot/latex-beamer/latex-beamer/examples/beamerexample5.tex,v 1.22 2004/10/08 14:02:33 tantau Exp $
+
+\documentclass[11pt]{beamer}
+
+\usetheme{Darmstadt}
+
+\usepackage{times}
+\usefonttheme{structurebold}
+
+%\usepackage[english]{babel}
+\usepackage[portuges]{babel}
+\usepackage{pgf,pgfarrows,pgfnodes,pgfautomata,pgfheaps}
+\usepackage{amsmath,amssymb}
+%\usepackage[latin8]{inputenc}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+
+\setbeamercovered{dynamic}
+
+\newcommand{\Lang}[1]{\operatorname{\text{\textsc{#1}}}}
+
+\newcommand{\Class}[1]{\operatorname{\mathchoice
+  {\text{\sf \small #1}}
+  {\text{\sf \small #1}}
+  {\text{\sf #1}}
+  {\text{\sf #1}}}}
+
+\newcommand{\NumSAT}      {\text{\small\#SAT}}
+\newcommand{\NumA}        {\#_{\!A}}
+
+\newcommand{\barA}        {\,\bar{\!A}}
+
+\newcommand{\Nat}{\mathbb{N}}
+\newcommand{\Set}[1]{\{#1\}}
+
+\pgfdeclaremask{tu}{beamer-tu-logo-mask}
+\pgfdeclaremask{computer}{beamer-computer-mask}
+\pgfdeclareimage[interpolate=true,mask=computer,height=2cm]{computerimage}{beamer-computer}
+\pgfdeclareimage[interpolate=true,mask=computer,height=2cm]{computerworkingimage}{beamer-computerred}
+\pgfdeclareimage[mask=tu,height=.5cm]{logo}{logounesp}
+
+\logo{\pgfuseimage{logo}}
+
+\title{Spin}
+\author{Ney Lemke}
+\institute[IBB-UNESP]{%
+    Mec\^anica Qu\^antica}
+\date{2012}                                
+
+\colorlet{redshaded}{red!25!bg}
+\colorlet{shaded}{black!25!bg}
+\colorlet{shadedshaded}{black!10!bg}
+\colorlet{blackshaded}{black!40!bg}
+
+\colorlet{darkred}{red!80!black}
+\colorlet{darkblue}{blue!80!black}
+\colorlet{darkgreen}{green!80!black}
+
+\def\radius{0.96cm}
+\def\innerradius{0.85cm}
+
+\def\softness{0.4}
+\definecolor{softred}{rgb}{1,\softness,\softness}
+\definecolor{softgreen}{rgb}{\softness,1,\softness}
+\definecolor{softblue}{rgb}{\softness,\softness,1}
+
+\definecolor{softrg}{rgb}{1,1,\softness}
+\definecolor{softrb}{rgb}{1,\softness,1}
+\definecolor{softgb}{rgb}{\softness,1,1}
+
+\newcommand{\Bandshaded}[2]{
+  \color{shadedshaded}
+  \pgfmoveto{\pgfxy(-0.5,0)}
+  \pgflineto{\pgfxy(-0.6,0.1)}
+  \pgflineto{\pgfxy(-0.4,0.2)}
+  \pgflineto{\pgfxy(-0.6,0.3)}
+  \pgflineto{\pgfxy(-0.4,0.4)}
+  \pgflineto{\pgfxy(-0.5,0.5)}
+  \pgflineto{\pgfxy(4,0.5)}
+  \pgflineto{\pgfxy(4.1,0.4)}
+  \pgflineto{\pgfxy(3.9,0.3)}
+  \pgflineto{\pgfxy(4.1,0.2)}
+  \pgflineto{\pgfxy(3.9,0.1)}
+  \pgflineto{\pgfxy(4,0)}
+  \pgfclosepath
+  \pgffill
+
+  \color{black}  
+  \pgfputat{\pgfxy(0,0.7)}{\pgfbox[left,base]{#1}}
+  \pgfputat{\pgfxy(0,-0.1)}{\pgfbox[left,top]{#2}}
+}
+
+\newcommand{\Band}[2]{
+  \color{shaded}
+  \pgfmoveto{\pgfxy(-0.5,0)}
+  \pgflineto{\pgfxy(-0.6,0.1)}
+  \pgflineto{\pgfxy(-0.4,0.2)}
+  \pgflineto{\pgfxy(-0.6,0.3)}
+  \pgflineto{\pgfxy(-0.4,0.4)}
+  \pgflineto{\pgfxy(-0.5,0.5)}
+  \pgflineto{\pgfxy(4,0.5)}
+  \pgflineto{\pgfxy(4.1,0.4)}
+  \pgflineto{\pgfxy(3.9,0.3)}
+  \pgflineto{\pgfxy(4.1,0.2)}
+  \pgflineto{\pgfxy(3.9,0.1)}
+  \pgflineto{\pgfxy(4,0)}
+  \pgfclosepath
+  \pgffill
+
+  \color{black}  
+  \pgfputat{\pgfxy(0,0.7)}{\pgfbox[left,base]{#1}}
+  \pgfputat{\pgfxy(0,-0.1)}{\pgfbox[left,top]{#2}}
+}
+
+\newcommand{\BaenderNormal}
+{%
+  \pgfsetlinewidth{0.4pt}
+  \color{black}
+  \pgfputat{\pgfxy(0,5)}{\Band{input tapes}{}}
+  \pgfputat{\pgfxy(0.35,4.6)}{\pgfbox[center,base]{$\vdots$}}
+  \pgfputat{\pgfxy(0,4)}{\Band{}{}}
+
+  \pgfxyline(0,5)(0,5.5)
+  \pgfxyline(1.2,5)(1.2,5.5)
+  \pgfputat{\pgfxy(0.25,5.25)}{\pgfbox[left,center]{$w_1$}}
+
+  \pgfxyline(0,4)(0,4.5)
+  \pgfxyline(1.8,4)(1.8,4.5)        
+  \pgfputat{\pgfxy(0.25,4.25)}{\pgfbox[left,center]{$w_n$}}
+  \ignorespaces}
+
+\newcommand{\BaenderZweiNormal}
+{%
+  \pgfsetlinewidth{0.4pt}
+  \color{black}
+  \pgfputat{\pgfxy(0,5)}{\Band{Zwei Eingabeb\~AÂÃÂ\~AÂÃÂ¤nder}{}}
+  \pgfputat{\pgfxy(0,4.25)}{\Band{}{}}
+
+  \pgfxyline(0,5)(0,5.5)
+  \pgfxyline(1.2,5)(1.2,5.5)
+  \pgfputat{\pgfxy(0.25,5.25)}{\pgfbox[left,center]{$u$}}
+
+  \pgfxyline(0,4.25)(0,4.75)
+  \pgfxyline(1.8,4.25)(1.8,4.75)        
+  \pgfputat{\pgfxy(0.25,4.5)}{\pgfbox[left,center]{$v$}}
+  \ignorespaces}
+
+\newcommand{\BaenderHell}
+{%
+  \pgfsetlinewidth{0.4pt}
+  \color{black}
+  \pgfputat{\pgfxy(0,5)}{\Bandshaded{input tapes}{}}
+  \color{shaded}
+  \pgfputat{\pgfxy(0.35,4.6)}{\pgfbox[center,base]{$\vdots$}}
+  \pgfputat{\pgfxy(0,4)}{\Bandshaded{}{}}
+
+  \color{blackshaded}
+  \pgfxyline(0,5)(0,5.5)
+  \pgfxyline(1.2,5)(1.2,5.5)
+  \pgfputat{\pgfxy(0.25,5.25)}{\pgfbox[left,center]{$w_1$}}
+
+  \pgfxyline(0,4)(0,4.5)
+  \pgfxyline(1.8,4)(1.8,4.5)        
+  \pgfputat{\pgfxy(0.25,4.25)}{\pgfbox[left,center]{$w_n$}}
+  \ignorespaces}
+
+\newcommand{\BaenderZweiHell}
+{%
+  \pgfsetlinewidth{0.4pt}
+  \color{black}
+  \pgfputat{\pgfxy(0,5)}{\Bandshaded{Zwei Eingabeb\~AÂÃÂ\~AÂÃÂ¤nder}{}}%
+  \color{blackshaded}
+  \pgfputat{\pgfxy(0,4.25)}{\Bandshaded{}{}}
+  \pgfputat{\pgfxy(0.25,4.5)}{\pgfbox[left,center]{$v$}}
+  \pgfputat{\pgfxy(0.25,5.25)}{\pgfbox[left,center]{$u$}}%
+
+  \pgfxyline(0,5)(0,5.5)
+  \pgfxyline(1.2,5)(1.2,5.5)
+
+  \pgfxyline(0,4.25)(0,4.75)
+  \pgfxyline(1.8,4.25)(1.8,4.75)        
+  \ignorespaces}
+
+\newcommand{\Slot}[1]{%
+  \begin{pgftranslate}{\pgfpoint{#1}{0pt}}%
+    \pgfsetlinewidth{0.6pt}%
+    \color{structure}%
+    \pgfmoveto{\pgfxy(-0.1,5.5)}%
+    \pgfbezier{\pgfxy(-0.1,5.55)}{\pgfxy(-0.05,5.6)}{\pgfxy(0,5.6)}%
+    \pgfbezier{\pgfxy(0.05,5.6)}{\pgfxy(0.1,5.55)}{\pgfxy(0.1,5.5)}%
+    \pgflineto{\pgfxy(0.1,4.0)}%
+    \pgfbezier{\pgfxy(0.1,3.95)}{\pgfxy(0.05,3.9)}{\pgfxy(0,3.9)}%
+    \pgfbezier{\pgfxy(-0.05,3.9)}{\pgfxy(-0.1,3.95)}{\pgfxy(-0.1,4.0)}%
+    \pgfclosepath%
+    \pgfstroke%
+  \end{pgftranslate}\ignorespaces}
+
+\newcommand{\SlotZwei}[1]{%
+  \begin{pgftranslate}{\pgfpoint{#1}{0pt}}%
+    \pgfsetlinewidth{0.6pt}%
+    \color{structure}%
+    \pgfmoveto{\pgfxy(-0.1,5.5)}%
+    \pgfbezier{\pgfxy(-0.1,5.55)}{\pgfxy(-0.05,5.6)}{\pgfxy(0,5.6)}%
+    \pgfbezier{\pgfxy(0.05,5.6)}{\pgfxy(0.1,5.55)}{\pgfxy(0.1,5.5)}%
+    \pgflineto{\pgfxy(0.1,4.25)}%
+    \pgfbezier{\pgfxy(0.1,4.25)}{\pgfxy(0.05,4.15)}{\pgfxy(0,4.15)}%
+    \pgfbezier{\pgfxy(-0.05,4.15)}{\pgfxy(-0.1,4.2)}{\pgfxy(-0.1,4.25)}%
+    \pgfclosepath%
+    \pgfstroke%
+  \end{pgftranslate}\ignorespaces}
+
+\newcommand{\ClipSlot}[1]{%
+  \pgfrect[clip]{\pgfrelative{\pgfxy(-0.1,0)}{\pgfpoint{#1}{4cm}}}{\pgfxy(0.2,1.5)}\ignorespaces}
+
+\newcommand{\ClipSlotZwei}[1]{%
+  \pgfrect[clip]{\pgfrelative{\pgfxy(-0.1,0)}{\pgfpoint{#1}{4.25cm}}}{\pgfxy(0.2,1.25)}\ignorespaces}
+
+
+\AtBeginSection[]{\frame{\frametitle{Outline}\tableofcontents[current]}}
+
+\begin{document}
+\frame{\titlepage}
+\frame{\frametitle{Operadores} 
+
+$$[S_i,S_j]=\epsilon_{ijk}S_k$$
+
+$$\langle l^\prime m^\prime |L_\pm| lm\rangle=\hbar\sqrt{l(l+1)-m(m\pm 1)} \delta_{ll^\prime}\delta_{mm\pm 1}$$
+
+$$L_x=\frac{L_++L_-}{2}$$
+$$L_y=\frac{-i(L_+-L_-)}{2}$$
+}
+
+\frame{\frametitle{Matrizes} 
+$$S_z=\hbar\left( 
+\begin{array}{cc}
+1/2 & 0 \\
+0   & -1/2 \\
+\end{array}
+\right)
+$$
+
+$$S_+=\hbar\left( 
+\begin{array}{cc}
+0 & 1 \\
+0   & 0 \\
+\end{array}
+\right)
+\quad 
+S_-=\hbar\left( 
+\begin{array}{cc}
+0 & 0 \\
+1 & 0 \\
+\end{array}
+\right)
+\quad 
+$$
+}
+
+\frame{\frametitle{Matrizes de Pauli} 
+$$\vec{S}=\frac{\hbar}{2}\vec{\sigma}$$
+
+$$I=\left( 
+\begin{array}{cc}
+1 & 0 \\
+0  & 1 \\
+\end{array}
+\right)
+\quad 
+\sigma_x=\left( 
+\begin{array}{cc}
+0 & 1 \\
+1 & 0 \\
+\end{array}
+\right)
+$$
+
+$$\sigma_y=\left( 
+\begin{array}{cc}
+0 & -i \\
+i  & 0 \\
+\end{array}
+\right)
+\quad 
+\sigma_z=\left( 
+\begin{array}{cc}
+1 & 0 \\
+0 & -1 \\
+\end{array}
+\right)
+$$
+}
+
+
+\frame{\frametitle{Propriedades} 
+  \begin{itemize}
+  \item $$[\sigma_i,\sigma_j]=2\epsilon_{ijk}\sigma_z$$
+  \item $$\sigma_x^2=\sigma_y^2=\sigma_z^2=I$$
+  \item $$\{\sigma_i, \sigma_j\}=0$$
+  \end{itemize}
+Nota $\{A,B\}=AB+BA$ chamado de anticomutador. 
+}
+
+\frame{\frametitle{Spinores} 
+ 
+$$ S_z\chi_\pm =\pm \hbar \chi_\pm$$
+
+$\chi_\pm$ são chamados de spinores.
+
+Em termos matriciais:
+
+ $$\hbar\left( 
+ \begin{array}{cc}
+ 1/2 & 0 \\
+ 0   & -1/2 \\
+ \end{array}
+ \right)
+\left( 
+   \begin{array}{c}
+     u \\ 
+     v
+   \end{array}
+ \right)
+=\frac{\pm \hbar}{2}
+ \left( 
+   \begin{array}{c}
+     u \\ 
+     v
+   \end{array}
+ \right)
+$$
+}
+
+\frame{\frametitle{Spinores} 
+Qualquer spinor pode ser escrito como:
+
+$$\chi=\alpha_+\left( 
+  \begin{array}{c}
+    1 \\ 
+    0
+  \end{array}
+\right)+
+\alpha_-\left( 
+  \begin{array}{c}
+    0 \\ 
+    1
+  \end{array}
+\right)=
+\left( 
+  \begin{array}{c}
+    \alpha_+ \\ 
+    \alpha_-
+  \end{array}
+\right)
+$$
+}
+\frame{\frametitle{Caso Geral} 
+$$S=S_x\cos \phi +S_y \sin \phi$$
+
+$$S\chi =\frac{\hbar}{2} \lambda \chi $$
+Em termos matriciais:
+
+$$
+\frac{\hbar}{2}\left( 
+ \begin{array}{cc}
+ 0 & \cos \phi-i\sin \phi \\
+ \cos \phi +i \sin \phi    & 0 \\
+ \end{array}
+ \right)
+\left( 
+   \begin{array}{c}
+     u \\ 
+     v
+   \end{array}
+ \right)
+=\frac{\hbar\lambda}{2}
+ \left( 
+   \begin{array}{c}
+     u \\ 
+     v
+   \end{array}
+ \right)
+$$
+}
+\frame{\frametitle{Caso Geral-Solução} 
+
+$$\lambda_\pm=\pm 1$$
+
+$$\chi_+=\frac{1}{\sqrt{2}}
+ \left( 
+   \begin{array}{c}
+     e^{-i\phi/2} \\ 
+     e^{i\phi/2}
+   \end{array}
+ \right)
+\quad
+\chi_-=\frac{1}{\sqrt{2}}
+ \left( 
+   \begin{array}{c}
+     e^{i\phi/2} \\ 
+     -e^{-i\phi/2}
+   \end{array}
+ \right)
+$$
+}
+
+\frame{\frametitle{Valores Esperados} 
+
+$$\langle \alpha| \vec{S} |\alpha\rangle =\sum_{ij} 
+\langle \alpha|i\rangle \langle i |\vec{S}|j\rangle\langle j | \alpha \rangle
+$$
+
+Na forma vetorial:
+$$\langle \alpha| \vec{S} |\alpha\rangle=
+(\alpha_+^*,\alpha_-^*).\vec{S}.
+\left( 
+   \begin{array}{c}
+     \alpha_+ \\ 
+     \alpha_- 
+   \end{array}
+ \right)
+$$
+}
+
+\frame{\frametitle{Valores Esperados} 
+$$\langle S_x \rangle = 
+\langle \alpha|S_x|\alpha\rangle=
+(\alpha_+^*,\alpha_-^*).
+\frac{\hbar}{2}
+\left( 
+\begin{array}{cc}
+0 & 1 \\
+1 & 0 \\
+\end{array}
+\right).\left( 
+   \begin{array}{c}
+     \alpha_+ \\ 
+     \alpha_- 
+   \end{array}
+ \right)
+$$
+
+$$\langle S_x \rangle =\frac{\hbar}{2}(\alpha_+^*\alpha_-+\alpha_-^*\alpha_+)$$
+
+
+}
+
+\frame{\frametitle{Valores Esperados} 
+$$\langle S_y \rangle = 
+\langle \alpha|S_y|\alpha\rangle=
+(\alpha_+^*,\alpha_-^*).
+\frac{\hbar}{2}
+\left( 
+\begin{array}{cc}
+0 & -i \\
+i & 0 \\
+\end{array}
+\right).\left( 
+   \begin{array}{c}
+     \alpha_+ \\ 
+     \alpha_- 
+   \end{array}
+ \right)
+$$
+
+$$\langle S_y \rangle =\frac{i\hbar}{2}(\alpha_+^*\alpha_--\alpha_-^*\alpha_+)$$
+
+
+}
+
+
+\frame{\frametitle{Valores Esperados} 
+$$\langle S_z \rangle = 
+\langle \alpha|S_y|\alpha\rangle=
+(\alpha_+^*,\alpha_-^*).
+\frac{\hbar}{2}
+\left( 
+\begin{array}{cc}
+1 & 0 \\
+0 & 1 \\
+\end{array}
+\right).
+\left( 
+   \begin{array}{c}
+     \alpha_+ \\ 
+     \alpha_- 
+   \end{array}
+ \right)
+$$
+
+$$\langle S_z \rangle =\frac{\hbar}{2}(\alpha_+^*\alpha_+-\alpha_-^*\alpha_-)
+=\frac{\hbar}{2}(|\alpha_+|^2-|\alpha_-|^2)$$
+
+
+}
+
+\frame{\frametitle{Exemplo} 
+Uma medida de $S_x$ obtém o valor $\frac{\hbar}{2}$. Uma medida subsequente de $S_x\cos \phi +S_y \sin \phi$ é realizada qual é a probabilidade de se obter
+$\hbar/2$?
+
+}
+
+\frame{\frametitle{Resposta}
+
+$P_+=\cos^2 \frac{\phi}{2} $
+} 
+
+\frame{\frametitle{Momento Magnético}
+
+$$\vec{M}=\frac{-eg}{2m_e}\vec{S}$$
+
+onde $g=2\times (1,0011596)$
+}
+
+\frame{\frametitle{Momento Magnético}
+Classicamente:
+
+$$\vec{M}=-\frac{e\vec{L}}{2m}$$
+
+A corrente $I$ é dada por $e/\tau$ onde $\tau$ é o período. 
+
+$$L=rp=m_erv \quad v=\frac{2\pi r}{\tau}$$
+
+$$L=\frac{2\pi m_er^2}{\tau}$$
+}
+
+\frame{\frametitle{Momento Magnético}
+
+O momento magnético é dado por 
+
+$$M=IS$$
+
+onde $S$ é a área do circuito.
+
+$$M=\frac{e}{\tau}\pi r^2$$
+
+Usando o valor de $L$ temos que:
+
+$$M=\frac{eL}{2m_e}$$
+}
+
+\frame{\frametitle{Spin em um Campo  Magnético}
+$$H=-\vec{M}.\vec{B}=\frac{eg\hbar}{4m_e}\vec{\sigma}.\vec{B}$$
+
+$$i\hbar \frac{d}{dt}|\psi(t)\rangle = 
+\frac{eg\hbar}{4m_e}\vec{\sigma}.\vec{B}|\psi(t)\rangle$$
+
+$$\vec{B}=B_o\vec{a_z}$$ 
+
+$$|\psi(t)\rangle=e^{i\omega t}\left( 
+   \begin{array}{c}
+     \alpha_+^* \\ 
+     \alpha_-^* 
+   \end{array}
+ \right)
+$$
+
+$$
+|\psi(t)\rangle =
+\left( 
+   \begin{array}{c}
+     ae^{i\omega_o t} \\ 
+     be^{-i\omega_o t} 
+   \end{array}
+ \right)$$
+}
+
+\frame{\frametitle{Exemplo}
+Em $t=0$ $\psi$ é o autoestado de $S_x$ com autovalor $\hbar/2$. 
+
+$$|\psi(t)\rangle=\frac{1}{\sqrt{2}}\left( 
+   \begin{array}{c}
+     e^{i\omega_o t} \\ 
+     e^{-i\omega_o t} 
+   \end{array}
+ \right)$$
+
+$$\langle S_x\rangle =\frac{\hbar}{2} \cos 2\omega_o t$$
+$$\langle S_y\rangle =\frac{\hbar}{2} \sin 2\omega_o t$$
+
+$$2\omega_o=\frac{egB}{2m_e}$$
+
+$$B=1T$$ $$\omega_c=0.9\times 10^{11} rad/s$$
+
+
+}
+
+\frame{\frametitle{Ressonância}
+
+Em sólidos $g$ depende do campo na proximidade dos núcleos. 
+
+Vamos supor que temos um campo aplicado na direção $z$,
+$B_o$,  e um campo perpendicular
+$B_x=B_1 \cos \omega t$. 
+
+A eq. de Schrödinger neste caso é:
+
+ $$i\hbar \frac{d}{dt} 
+ \left( \begin{array}{c}
+ a(t) \\
+ b(t)
+ \end{array}
+ \right) 
+ =
+ \frac{eg\hbar}{4 m_e}
+ \left( \begin{array}{cc}
+B_o & B_1\cos \omega t \\
+B_1\cos \omega t  & -B_o 
+\end{array}
+\right)
+\left( \begin{array}{c}
+a(t) \\
+b(t)
+\end{array}
+\right) 
+ $$
+}
+
+
+\frame{\frametitle{Anz\"atz}
+
+$$A(t)=a(t) e^{i\omega_o t} \quad B(t)=b(t)e^{i\omega_o t}$$
+
+$$\omega_1=\frac{egB_1}{4 m_e} \quad \omega_o=\frac{egB_o}{4 m_e}$$
+
+$$i\frac{dA(t)}{dt}=-\omega_o a(t) +\frac{da(t)}{dt}e^{i\omega_o t}$$
+
+$$=-\omega_o a(t) +(\omega_o a(t) +\omega_1\cos \omega t )e^{i\omega_ot}$$
+
+$$=\omega_1B(t)e^{2i\omega_o t}\cos \omega t$$ 
+
+}
+
+\frame{\frametitle{Anz\"atz}
+$$i\frac{dB(t)}{dt}=\omega_1A(t)e^{-2i\omega_o t}\cos \omega t$$ 
+
+Desprezamos os termos que oscilam rápido, pois vamos estar interessados 
+em valores médios. 
+
+$$i\frac{dA(t)}{dt}=\frac{\omega_1}{2} A(t)e^{2i\omega_o t-i\omega t}$$
+
+$$i\frac{dB(t)}{dt}=\frac{\omega_1}{2} B(t)e^{-(2i\omega_o t-\omega t)}$$
+
+$$\frac{d^2A(t)}{dt^2}=i(2\omega_o -\omega)\frac{dA}{dt}-\frac{\omega_1^2}{4}A(t)$$
+
+$$A(t)=A(0)e^{i\Omega t}$$
+
+
+}
+
+\frame{\frametitle{Solução}
+
+
+$$\Omega_\pm =\left(\omega_o \pm \frac{\omega}{2} \right)\pm \sqrt{
+\left(\omega_o -\frac{\omega}{2} \right)^2+\frac{\omega_1^2}{4}}
+$$
+
+
+$$A(t)=A_+ e^{i\Omega_+ t}+A_- e^{i\Omega_- t}$$
+
+$$B(t)=\frac{-2}{\omega_1}\left(
+A_+ \Omega_+ e^{i\Omega_+ t}+A_-\Omega_- e^{i\Omega_- t}
+\right)
+$$
+}
+
+\frame{\frametitle{Solução}
+Suponha que em $t=0$ $a(0)=1$ e $b(0)=0$. 
+Lembrando que:
+
+$$A(t)=a(t) e^{i\omega_o t} \quad B(t)=b(t)e^{i\omega_o t}$$
+
+$$A_++A_-=1 \quad \Omega_+A_++\Omega_-A_-=0$$
+
+Resolvendo temos que:
+
+$$A_+=\frac{\Omega_-}{\Omega_--\Omega_+} \quad
+A_-=\frac{-\Omega_+}{\Omega_--\Omega_+} $$
+}
+
+\frame{\frametitle{Solução}
+Qual é a probabilidade de ficar na posição reversa?
+
+
+$$P_-(t)=|b(t)|^2=\frac{4}{\omega_1^2}\left|\frac{\Omega_+\Omega_-}{\Omega_+ -\Omega_-} \right|^2(2-2 \cos (\Omega_+ -\Omega_-)t)$$
+
+
+Na ressonância:
+
+$$\omega=2\omega_o$$
+
+$$\Omega_\pm=\frac{\pm \omega_1}{2}$$
+
+$$P_{res}=\frac{1}{2}(1-\cos \omega_1 t)$$
+}
+
+\frame{\frametitle{Solução}
+Fora da ressonância:
+
+$$P_-(t)=\frac{1}{2}\frac{\omega_1^2}{(2\omega_o-\omega)^2+\omega_1^2}
+(1-\cos \sqrt{(2\omega_o -\omega)^2+\omega_1^2}t)$$
+}
+\end{document}
+
+
+

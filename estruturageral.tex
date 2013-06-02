@@ -1,0 +1,420 @@
+% $Header: /cvsroot/latex-beamer/latex-beamer/examples/beamerexample5.tex,v 1.22 2004/10/08 14:02:33 tantau Exp $
+
+\documentclass[11pt]{beamer}
+
+\usetheme{Darmstadt}
+
+\usepackage{times}
+\usefonttheme{structurebold}
+
+%\usepackage[english]{babel}
+\usepackage[portuges]{babel}
+\usepackage{pgf,pgfarrows,pgfnodes,pgfautomata,pgfheaps}
+\usepackage{amsmath,amssymb}
+%\usepackage[latin8]{inputenc}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+
+\setbeamercovered{dynamic}
+
+\newcommand{\Lang}[1]{\operatorname{\text{\textsc{#1}}}}
+
+\newcommand{\Class}[1]{\operatorname{\mathchoice
+  {\text{\sf \small #1}}
+  {\text{\sf \small #1}}
+  {\text{\sf #1}}
+  {\text{\sf #1}}}}
+
+\newcommand{\NumSAT}      {\text{\small\#SAT}}
+\newcommand{\NumA}        {\#_{\!A}}
+
+\newcommand{\barA}        {\,\bar{\!A}}
+
+\newcommand{\Nat}{\mathbb{N}}
+\newcommand{\Set}[1]{\{#1\}}
+
+\pgfdeclaremask{tu}{beamer-tu-logo-mask}
+\pgfdeclaremask{computer}{beamer-computer-mask}
+\pgfdeclareimage[interpolate=true,mask=computer,height=2cm]{computerimage}{beamer-computer}
+\pgfdeclareimage[interpolate=true,mask=computer,height=2cm]{computerworkingimage}{beamer-computerred}
+\pgfdeclareimage[mask=tu,height=.5cm]{logo}{logounesp}
+
+\logo{\pgfuseimage{logo}}
+
+\title{Estrutura Geral da Mecânica Ondulatória}
+\author{Ney Lemke}
+\institute[IBB-UNESP]{%
+    Mec\^anica Qu\^antica}
+\date{2013}                                
+
+\colorlet{redshaded}{red!25!bg}
+\colorlet{shaded}{black!25!bg}
+\colorlet{shadedshaded}{black!10!bg}
+\colorlet{blackshaded}{black!40!bg}
+
+\colorlet{darkred}{red!80!black}
+\colorlet{darkblue}{blue!80!black}
+\colorlet{darkgreen}{green!80!black}
+
+\def\radius{0.96cm}
+\def\innerradius{0.85cm}
+
+\def\softness{0.4}
+\definecolor{softred}{rgb}{1,\softness,\softness}
+\definecolor{softgreen}{rgb}{\softness,1,\softness}
+\definecolor{softblue}{rgb}{\softness,\softness,1}
+
+\definecolor{softrg}{rgb}{1,1,\softness}
+\definecolor{softrb}{rgb}{1,\softness,1}
+\definecolor{softgb}{rgb}{\softness,1,1}
+
+\newcommand{\Bandshaded}[2]{
+  \color{shadedshaded}
+  \pgfmoveto{\pgfxy(-0.5,0)}
+  \pgflineto{\pgfxy(-0.6,0.1)}
+  \pgflineto{\pgfxy(-0.4,0.2)}
+  \pgflineto{\pgfxy(-0.6,0.3)}
+  \pgflineto{\pgfxy(-0.4,0.4)}
+  \pgflineto{\pgfxy(-0.5,0.5)}
+  \pgflineto{\pgfxy(4,0.5)}
+  \pgflineto{\pgfxy(4.1,0.4)}
+  \pgflineto{\pgfxy(3.9,0.3)}
+  \pgflineto{\pgfxy(4.1,0.2)}
+  \pgflineto{\pgfxy(3.9,0.1)}
+  \pgflineto{\pgfxy(4,0)}
+  \pgfclosepath
+  \pgffill
+
+  \color{black}  
+  \pgfputat{\pgfxy(0,0.7)}{\pgfbox[left,base]{#1}}
+  \pgfputat{\pgfxy(0,-0.1)}{\pgfbox[left,top]{#2}}
+}
+
+\newcommand{\Band}[2]{
+  \color{shaded}
+  \pgfmoveto{\pgfxy(-0.5,0)}
+  \pgflineto{\pgfxy(-0.6,0.1)}
+  \pgflineto{\pgfxy(-0.4,0.2)}
+  \pgflineto{\pgfxy(-0.6,0.3)}
+  \pgflineto{\pgfxy(-0.4,0.4)}
+  \pgflineto{\pgfxy(-0.5,0.5)}
+  \pgflineto{\pgfxy(4,0.5)}
+  \pgflineto{\pgfxy(4.1,0.4)}
+  \pgflineto{\pgfxy(3.9,0.3)}
+  \pgflineto{\pgfxy(4.1,0.2)}
+  \pgflineto{\pgfxy(3.9,0.1)}
+  \pgflineto{\pgfxy(4,0)}
+  \pgfclosepath
+  \pgffill
+
+  \color{black}  
+  \pgfputat{\pgfxy(0,0.7)}{\pgfbox[left,base]{#1}}
+  \pgfputat{\pgfxy(0,-0.1)}{\pgfbox[left,top]{#2}}
+}
+
+\newcommand{\BaenderNormal}
+{%
+  \pgfsetlinewidth{0.4pt}
+  \color{black}
+  \pgfputat{\pgfxy(0,5)}{\Band{input tapes}{}}
+  \pgfputat{\pgfxy(0.35,4.6)}{\pgfbox[center,base]{$\vdots$}}
+  \pgfputat{\pgfxy(0,4)}{\Band{}{}}
+
+  \pgfxyline(0,5)(0,5.5)
+  \pgfxyline(1.2,5)(1.2,5.5)
+  \pgfputat{\pgfxy(0.25,5.25)}{\pgfbox[left,center]{$w_1$}}
+
+  \pgfxyline(0,4)(0,4.5)
+  \pgfxyline(1.8,4)(1.8,4.5)        
+  \pgfputat{\pgfxy(0.25,4.25)}{\pgfbox[left,center]{$w_n$}}
+  \ignorespaces}
+
+\newcommand{\BaenderZweiNormal}
+{%
+  \pgfsetlinewidth{0.4pt}
+  \color{black}
+  \pgfputat{\pgfxy(0,5)}{\Band{Zwei Eingabeb\~AÂÃÂ\~AÂÃÂ¤nder}{}}
+  \pgfputat{\pgfxy(0,4.25)}{\Band{}{}}
+
+  \pgfxyline(0,5)(0,5.5)
+  \pgfxyline(1.2,5)(1.2,5.5)
+  \pgfputat{\pgfxy(0.25,5.25)}{\pgfbox[left,center]{$u$}}
+
+  \pgfxyline(0,4.25)(0,4.75)
+  \pgfxyline(1.8,4.25)(1.8,4.75)        
+  \pgfputat{\pgfxy(0.25,4.5)}{\pgfbox[left,center]{$v$}}
+  \ignorespaces}
+
+\newcommand{\BaenderHell}
+{%
+  \pgfsetlinewidth{0.4pt}
+  \color{black}
+  \pgfputat{\pgfxy(0,5)}{\Bandshaded{input tapes}{}}
+  \color{shaded}
+  \pgfputat{\pgfxy(0.35,4.6)}{\pgfbox[center,base]{$\vdots$}}
+  \pgfputat{\pgfxy(0,4)}{\Bandshaded{}{}}
+
+  \color{blackshaded}
+  \pgfxyline(0,5)(0,5.5)
+  \pgfxyline(1.2,5)(1.2,5.5)
+  \pgfputat{\pgfxy(0.25,5.25)}{\pgfbox[left,center]{$w_1$}}
+
+  \pgfxyline(0,4)(0,4.5)
+  \pgfxyline(1.8,4)(1.8,4.5)        
+  \pgfputat{\pgfxy(0.25,4.25)}{\pgfbox[left,center]{$w_n$}}
+  \ignorespaces}
+
+\newcommand{\BaenderZweiHell}
+{%
+  \pgfsetlinewidth{0.4pt}
+  \color{black}
+  \pgfputat{\pgfxy(0,5)}{\Bandshaded{Zwei Eingabeb\~AÂÃÂ\~AÂÃÂ¤nder}{}}%
+  \color{blackshaded}
+  \pgfputat{\pgfxy(0,4.25)}{\Bandshaded{}{}}
+  \pgfputat{\pgfxy(0.25,4.5)}{\pgfbox[left,center]{$v$}}
+  \pgfputat{\pgfxy(0.25,5.25)}{\pgfbox[left,center]{$u$}}%
+
+  \pgfxyline(0,5)(0,5.5)
+  \pgfxyline(1.2,5)(1.2,5.5)
+
+  \pgfxyline(0,4.25)(0,4.75)
+  \pgfxyline(1.8,4.25)(1.8,4.75)        
+  \ignorespaces}
+
+\newcommand{\Slot}[1]{%
+  \begin{pgftranslate}{\pgfpoint{#1}{0pt}}%
+    \pgfsetlinewidth{0.6pt}%
+    \color{structure}%
+    \pgfmoveto{\pgfxy(-0.1,5.5)}%
+    \pgfbezier{\pgfxy(-0.1,5.55)}{\pgfxy(-0.05,5.6)}{\pgfxy(0,5.6)}%
+    \pgfbezier{\pgfxy(0.05,5.6)}{\pgfxy(0.1,5.55)}{\pgfxy(0.1,5.5)}%
+    \pgflineto{\pgfxy(0.1,4.0)}%
+    \pgfbezier{\pgfxy(0.1,3.95)}{\pgfxy(0.05,3.9)}{\pgfxy(0,3.9)}%
+    \pgfbezier{\pgfxy(-0.05,3.9)}{\pgfxy(-0.1,3.95)}{\pgfxy(-0.1,4.0)}%
+    \pgfclosepath%
+    \pgfstroke%
+  \end{pgftranslate}\ignorespaces}
+
+\newcommand{\SlotZwei}[1]{%
+  \begin{pgftranslate}{\pgfpoint{#1}{0pt}}%
+    \pgfsetlinewidth{0.6pt}%
+    \color{structure}%
+    \pgfmoveto{\pgfxy(-0.1,5.5)}%
+    \pgfbezier{\pgfxy(-0.1,5.55)}{\pgfxy(-0.05,5.6)}{\pgfxy(0,5.6)}%
+    \pgfbezier{\pgfxy(0.05,5.6)}{\pgfxy(0.1,5.55)}{\pgfxy(0.1,5.5)}%
+    \pgflineto{\pgfxy(0.1,4.25)}%
+    \pgfbezier{\pgfxy(0.1,4.25)}{\pgfxy(0.05,4.15)}{\pgfxy(0,4.15)}%
+    \pgfbezier{\pgfxy(-0.05,4.15)}{\pgfxy(-0.1,4.2)}{\pgfxy(-0.1,4.25)}%
+    \pgfclosepath%
+    \pgfstroke%
+  \end{pgftranslate}\ignorespaces}
+
+\newcommand{\ClipSlot}[1]{%
+  \pgfrect[clip]{\pgfrelative{\pgfxy(-0.1,0)}{\pgfpoint{#1}{4cm}}}{\pgfxy(0.2,1.5)}\ignorespaces}
+
+\newcommand{\ClipSlotZwei}[1]{%
+  \pgfrect[clip]{\pgfrelative{\pgfxy(-0.1,0)}{\pgfpoint{#1}{4.25cm}}}{\pgfxy(0.2,1.25)}\ignorespaces}
+
+
+\AtBeginSection[]{\frame{\frametitle{Outline}\tableofcontents[current]}}
+
+\begin{document}
+
+\frame{\titlepage} \frame{\frametitle{Resumo}
+
+$$i\hbar\frac{\partial \psi}{\partial t}=\hat{H}\psi \quad 
+\hat{H}=\frac{\hat{p^2}}{2m}+V(x)$$
+
+onde:
+
+$$\hat{p}=-i\hbar\frac{\partial}{\partial x}$$
+
+$$\psi(x,t)=u_E e^{-iEt/\hbar} \quad \hat{H}u_E(x)=Eu_E(x)$$
+}
+
+\frame{\frametitle{Observações}
+\begin{itemize}
+    \item $$\int_{-\infty}^\infty dx u_{E_1}^*(x)u_{E_2}(x) =\delta_{E_1,E_2}$$
+    o valor $a$.
+  \item Uma vez que o sistema é medido o pacote de onda colapsa e em
+    medidas imediatamente subsequentes o observável $A$ valerá $a$.
+  \end{itemize}
+}
+
+\frame{\frametitle{Teorema:}
+$$\sum_a |C_a|^2=1$$
+$$\int_{-\infty}^\infty dx \psi^*\psi=1$$
+$$\int dx \psi^*\sum_a C_a u_a$$
+$$ \sum_{a,a^\prime} C_aC^*_{a^\prime} \int dx u_au_{a^\prime}^*=
+\sum_{a,a^\prime} C_aC^*_{a^\prime}\delta_{aa^\prime}=\sum_a
+|C_a|^2=1$$ }
+
+\frame{\frametitle{Teorema:}
+$$\sum_a u_a^*(x)u_a(y)=\delta (x-y)$$
+
+$$\sum_a C_a^*C_a=\sum_a\int_{-\infty}^\infty dx\psi(x)u^*_a(x)  
+\int_{-\infty}^\infty dy \psi^*(y)u_a(y)=1$$
+$$=\int_{-\infty}^\infty dx\int_{-\infty}^\infty dy \psi^*(y)\psi(x) \sum_a u_a(x) u_a(y)=1$$
+A única forma de satisfazermos essa igualdade é se:
+$$\sum_a u_a^*(x)u_a(y)=\delta (x-y)$$
+}
+
+\frame{\frametitle{Operador Conjugado}
+
+$$\int_{-\infty}^\infty dx \psi^* Q^\dagger \psi =\int_{-\infty}^\infty dx (Q\psi(x))^*\psi $$
+
+Operador Auto-Adjunto:
+
+$$Q^\dagger=Q$$
+
+
+}
+
+\frame{\frametitle{Teorema}
+$$(AB)^\dagger=B^\dagger A^\dagger$$
+
+$$\int dx (AB\phi )^* \psi=\int dx (A \chi)^*\psi=\int dx \chi^* A^\dagger \psi$$
+
+$$=\int dx \phi^*
+ B^\dagger A^\dagger \psi$$
+}
+
+
+\frame{\frametitle{Teorema}
+
+
+$$(\Delta A)^2(\Delta B)^2\geq \frac{1}{4}\left\langle i[A,B] \right\rangle ^2$$
+
+Este resultado mostra que que se $A$ e $B$ não comutam eles não podem
+ser medidos simultaneamente.
+
+}
+
+
+\frame{\frametitle{Degenerescência e Observáveis Simultâneos} {\bf
+    Teorema:} Se $u_a$ são autofunções de $A$ e $B$ simultaneamente
+  para qualquer $a$ então $[A,B]=0$.
+
+$$Au_a=au_a\quad Bu_a=bu_a$$
+
+$$ABu_a=abu_a=bau_a=BAu_a$$
+
+Logo:
+
+$$AB=BA$$
+}
+
+\frame{\frametitle{Degenerescência e Observáveis Simultâneos} Se
+  $[A,B]=0$ as autofunções de $A$ são também autofunções de $B$ se as
+  autofunções são não degeneradas.
+
+$$ABu_A=BAu_A=aBu_A$$
+
+Se as autofunções de $A$ são não degeneradas temos que:
+
+$$Bu_a=bu_a$$
+O que acontece no caso degenerado?  }
+
+\frame{\frametitle{Caso degenerado}
+
+
+$$Au_A=au_a^1\quad Au_a^2=au_A^2$$
+
+$$Bu_a^1=b_{11}u_a^1+b_{12}u_a^2 \quad
+Bu_a^2=b_{21}u_a^1+b_{22}u_a^2$$
+
+Escolhemos então $v_a^1$ e $v_a^2$ tais que:
+
+$$Av_{ab}=av_{ab} \quad Bv_{ab}=bv_{ab}$$
+}
+
+\frame{\frametitle{Caso degenerado} Se houver ainda um terceiro
+  operador que comute com $A$ e $B$, $C$ neste caso podemos extender
+  esse processo e definir:
+
+$$Aw_{abc}=aw_{abc} \quad Bw_{abc}=bw_{abc}$$
+
+$$Cw_{abc}=cw_{abc}$$
+
+}
+
+\frame{\frametitle{Caso degenerado} Neste caso dizemos que os
+  observáveis $A$, $B$ e $C$ formam um conjunto completo de
+  observáveis que comutam (admitimos que as autofunções $w_{abc}$ são
+  não degeneradas.
+
+  Os observáveis $A$ e $B$ e $C$ são as quantidades que podemos
+  conhecer simultâneamente de um determinado sistema físico.
+
+  Exemplo: $E$, $L^2$ e $L_z$ no caso do átomo de hidrogênio.
+
+}
+
+
+\frame{\frametitle{Dependência Temporal}
+
+$$\langle A_t\rangle = \int \psi^*(x,t) A(t) \psi(x,t)$$
+
+$$\frac{d}{dt}\langle A\rangle =\int dx \left[ \frac{\partial \psi^*}{\partial t}A\psi+
+  \psi^*\frac{\partial A}{\partial t} \psi + \psi^* A \frac{\partial \psi}{\partial
+    t}\right]$$
+
+$$=\left\langle \frac{\partial A}{\partial t}\right\rangle +
+\int dx \left[ \left(\frac{1}{i\hbar} H\psi \right)^*A\psi\right]
++\left[ \psi^* A \left( \frac{1}{i\hbar} H\psi \right) \right]
+$$
+
+$$=\left\langle \frac{\partial A}{\partial t}\right\rangle+
+\frac{1}{i\hbar}\int dx\left[ -\psi^*HA\psi+\psi^*AH\psi\right]$$
+ $$=\left\langle \frac{\partial A}{\partial t}\right\rangle+
+ \frac{i}{\hbar}\left\langle [H,A] \right\rangle$$ }
+
+\frame{\frametitle{Dependência Temporal $\langle x\rangle$}
+$$\hat{H}=\frac{\hat{p}^2}{2m}+V(x)$$
+
+$$\frac{d \langle x\rangle}{dt} =\frac{i}{\hbar}\langle [H,x] \rangle $$
+
+$$=\frac{i}{\hbar}\left\langle \left[\frac{p^2}{2m}+V(x),x\right]\right\rangle$$
+
+$$=\frac{i}{\hbar}\left\langle \left[ \frac{p^2}{2 m},x\right]\right\rangle$$
+}
+
+\frame{\frametitle{Dependência Temporal $\langle x\rangle$}
+$$\left[ \frac{p^2}{2m},x \right]=\frac{1}{2m}[p^2,x]$$
+
+$$\frac{1}{2m} (p^2x -xp^2+pxp-pxp)$$
+
+$$\frac{1}{2m}(p[p,x]+[p,x]p)=\frac{\hbar}{im}p$$
+
+$$\frac{d \langle x\rangle}{dt} = \frac{\langle p \rangle}{m} $$
+
+}
+
+\frame{\frametitle{Dependência Temporal $\langle p\rangle$}
+
+$$\frac{d \langle p\rangle}{dt}=\frac{i}{\hbar}\left\langle\left[ \frac{p^2}{2m}+V(x),p\right]\right\rangle =\frac{i}{\hbar}\left\langle [V(x),p] \right\rangle$$
+
+$$\frac{\hbar}{i}V\frac{\partial\psi}{\partial x}-\frac{\hbar}{i}\frac{\partial}{\partial x}(V\psi)$$
+
+$$\frac{\hbar}{i}V\frac{\partial \psi}{\partial x}-\frac{\hbar}{i}\frac{\partial V}{\partial x}-\frac{\hbar}{i}V\frac{\partial \psi}{\partial x}
+=i\hbar\frac{\partial V}{\partial x}$$
+
+$$\frac{d \langle p\rangle}{d t}=-\left\langle \frac{\partial V}{\partial x} \right\rangle $$
+
+
+}
+
+\frame{\frametitle{Limite Clássico}
+
+$$m\frac{d^2 \langle x\rangle}{dt^2}=-\left\langle \frac{\partial V}{\partial x}\right\rangle $$
+
+Note que:
+
+$$\left\langle \frac{dV}{dx}\right\rangle\neq \frac{d\langle V (\langle x\rangle )}{d\langle x \rangle }$$
+
+$$F(x)=F(\langle x\rangle )+(x-\langle x \rangle )F^\prime (\langle x\rangle )$$
+
+$$F(x)\sim F(\langle x\rangle )$$
+
+}
+\end{document}
